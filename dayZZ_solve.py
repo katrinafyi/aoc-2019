@@ -4,12 +4,12 @@ from dataclasses import dataclass
 # import math
 # from statistics import mean
 
-DAY = '00'
+INPUT = 'dayXX_input.txt'
 
 # import numpy as np 
 # import scipy as sp
 
-def parse(file):
+def parse(lines):
     pass
 
 def solve_1(data):
@@ -19,8 +19,8 @@ def solve_2(data):
     pass 
 
 if __name__ == "__main__":
-    with open(f'day{DAY}_input.txt') as f:
-        print('sol 1:', solve_1(parse(f)))
+    with open(INPUT) as f:
+        print('sol 1:', solve_1(parse(f.readlines())))
         print()
         f.seek(0)
-        print('sol 2:', solve_2(parse(f)))
+        print('sol 2:', solve_2(parse(f.readlines())))
