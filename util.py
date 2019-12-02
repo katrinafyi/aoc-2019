@@ -3,6 +3,18 @@ import math
 from collections import namedtuple
 from typing import Tuple, Iterator, Iterable, NamedTuple, List
 
+import re
+
+INT_REGEX = re.compile(r'-?\d+')
+def ints(s: str) -> List[int]:
+    return map_int(INT_REGEX.findall(s))
+
+def map_int(l) -> List[int]:
+    return [int(x) for x in l]
+
+def map_float(l) -> List[int]:
+    return [float(x) for x in l]
+
 _shifts = ( (0, 1), (0, -1), (1, 0), (-1, 0) )
 def adjacents(pos: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
     for s in _shifts:

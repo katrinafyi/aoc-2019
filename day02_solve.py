@@ -42,8 +42,8 @@ def solve_1(data):
     return run_prog(12, 2, data)
 
 def solve_2(data):
-    for x in set(range(100)):
-        for y in set(range(100)):
+    for x in range(100):
+        for y in range(100):
             result = None
             try:
                 result = run_prog(x, y, data)
@@ -51,15 +51,16 @@ def solve_2(data):
                 print(x,y,'failed', e)
                 continue
 
-            print(x,y,result)
+            #print(x,y,result)
             if result == 19690720: 
-                return 'done'
+                return (x,y)
 
 if __name__ == "__main__":
     #solve_1([1,0,0,0,99])
     #solve_1([2,4,4,5,99,0])
 
     with open(f'day{DAY}_input.txt') as f:
-        print('sol 1', solve_1(parse(f)))
+        print('sol 1:', solve_1(parse(f)))
         print()
-        print('sol 2', solve_2(parse(f)))
+        f.seek(0)
+        print('sol 2:', solve_2(parse(f)))
