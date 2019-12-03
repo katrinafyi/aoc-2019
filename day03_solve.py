@@ -5,19 +5,15 @@ from dataclasses import dataclass
 # import math
 # from statistics import mean
 
-import re 
-
-TEMPLATE = re.compile(r'.')
-
 INPUT = 'day03_input.txt'
 
 # import numpy as np 
 # import scipy as sp
 
 def parse(lines):
-    wires = []
+    wires = [] # array of wires. each wire is an array of steps defining that wire.
     for line in lines:
-        steps = []
+        steps = [] # array of steps. each step is a tuple (letter, length)
         for step in line.strip().split(','):
             steps.append((step[0], int(step[1:])))
         wires.append(steps)
@@ -33,16 +29,15 @@ STEPS = {
 def manhattan(p1, p2):
     return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
 
-def solve_1(data):
-    #print(data)
-    wires = data
+def compute_intersections(wires):
+    num_wires = len(wires)
 
-    num_wires = len(data)
-
+    # mapping of position to array. value array contains length to reach that 
+    # point for each wire. 
     grid = defaultdict(lambda: [None]*num_wires)
-    print(wires)
+    #print(wires)
     for i, wire in enumerate(wires):
-        print(i)
+        #print(i)
         pos = (0,0)
         grid[pos][i] = 0
         wire_len = 1
@@ -55,18 +50,20 @@ def solve_1(data):
                     grid[pos][i] = wire_len
                 wire_len += 1
                 #print(pos)
-    intersctions = [(pos, val) 
-        for pos, val in grid.items() 
-        if val[0] is not None and val[1] is not None
-            and pos != (0,0)]
-    intersctions.sort(key=lambda x: manhattan((0,0),x[0]))
-    print('sol 1:', intersctions[0])
+    return [(pos, val) for pos, val in grid.items()
+        if val[0] is not None and val[1] is not None and pos != (0,0)]
 
-    intersctions.sort(key=lambda x: sum(x[1]))
-    print('sol 2:', intersctions[0])
+def solve_1(data):
+    intersctions = compute_intersections(data)
+    f = lambda x: manhattan((0,0), x[0])
+    intersctions.sort(key=f)
+    return intersctions[0], f(intersctions[0])
 
 def solve_2(data):
-    pass 
+    intersctions = compute_intersections(data)
+    f = lambda x: sum(x[1])
+    intersctions.sort(key=f)
+    return intersctions[0], f(intersctions[0])
 
 if __name__ == "__main__":
     with open(INPUT) as f:

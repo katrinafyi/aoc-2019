@@ -15,9 +15,15 @@ def map_int(l) -> List[int]:
 def map_float(l) -> List[int]:
     return [float(x) for x in l]
 
-_shifts = ( (0, 1), (0, -1), (1, 0), (-1, 0) )
+CARDINALS = {
+    'U': (0, -1),
+    'D': (0, 1),
+    'L': (-1, 0),
+    'R': (1, 0)
+}
+
 def adjacents(pos: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
-    for s in _shifts:
+    for s in CARDINALS.values():
         yield (pos[0] + s[0], pos[1] + s[1])
 
 def tup_add(x, y) -> Tuple[int]:
