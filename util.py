@@ -20,6 +20,13 @@ def adjacents(pos: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
     for s in _shifts:
         yield (pos[0] + s[0], pos[1] + s[1])
 
+def tup_add(x, y) -> Tuple[int]:
+    assert len(x) == len(y)
+    return tuple(xi + yi for xi, yi in zip(x, y))
+
+def manhattan(p1, p2):
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
 MinMax = namedtuple('MinMax', ('min', 'max'))
 
 def min_max_tuples(tuples: Iterable[Tuple]) -> List[MinMax]:
