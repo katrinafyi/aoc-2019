@@ -16,7 +16,7 @@ def parse(lines):
 def is_valid(num):
     num_str = str(num)
     # numbers must be not decreasing
-    if any(int(num_str[i+1]) < int(num_str[i]) for i in range(len(num_str)-1)):
+    if not all(int(num_str[i+1]) >= int(num_str[i]) for i in range(len(num_str)-1)):
         return False
     # some number must be present at least twice
     if not any(v >= 2 for v in count_freq(num_str).values()):
