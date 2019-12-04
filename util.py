@@ -1,19 +1,33 @@
 import math
 
-from collections import namedtuple
+from functools import lru_cache
+from collections import namedtuple, defaultdict
 from typing import Tuple, Iterator, Iterable, NamedTuple, List
 
 import re
 
 INT_REGEX = re.compile(r'-?\d+')
+UINT_REGEX = re.compile(r'\d+')
 def ints(s: str) -> List[int]:
     return map_int(INT_REGEX.findall(s))
+
+def uints(s):
+    return map_int(UINT_REGEX.findall(s))
 
 def map_int(l) -> List[int]:
     return [int(x) for x in l]
 
 def map_float(l) -> List[int]:
     return [float(x) for x in l]
+
+@lru_cache()
+def count_freq(obj):
+    out = {}
+    for x in obj:
+        if x not in out: 
+            out[x] = 0
+        out[x] += 1
+    return out
 
 CARDINALS = {
     'U': (0, -1),

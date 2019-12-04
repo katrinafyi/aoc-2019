@@ -12,30 +12,32 @@ INPUT = 'day04_input.txt'
 def parse(lines):
     return tuple(map(int, (lines.split('-'))))
     
+@lru_cache(maxsize=None)
 def is_valid(num):
     num_str = str(num)
-    adjacents = [i for i in range(len(num_str)-1) if num_str[i] == num_str[i+1]]
-    #print(adjacents)
-    adjacents = [i for i in adjacents if (i+2 >= len(num_str) or num_str[i+2] != num_str[i]) and (i < 1 or num_str[i-1] != num_str[i])]
-    #print(adjacents)
-    if not adjacents: return False 
-
-    prev = num_str[0]
-    for char in num_str:
-        if (int(char) < int(prev)):
-            return False 
-        prev = char
+    # numbers must be not decreasing
+    if any(int(num_str[i+1]) < int(num_str[i]) for i in range(len(num_str)-1)):
+        return False
+    # some number must be present at least twice
+    if not any(v >= 2 for v in count_freq(num_str).values()):
+        return False
     return True
 
 def solve_1(data):
     valid = 0
     for x in range(data[0], data[1]+1):
         #print(x)
-        if is_valid(x): valid +=1
+        if is_valid(x): valid += 1
     return valid
 
 def solve_2(data):
-    pass 
+    valid = 0
+    for x in range(data[0], data[1]+1):
+        #print(x)
+        num_str = str(x)
+        if is_valid(x) and any(v == 2 for v in count_freq(num_str).values()): 
+            valid += 1
+    return valid
 
 if __name__ == "__main__":
     print('sol 1:', solve_1(parse('248345-746315')))
