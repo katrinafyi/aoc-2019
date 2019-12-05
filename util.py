@@ -20,6 +20,22 @@ def map_int(l) -> List[int]:
 def map_float(l) -> List[int]:
     return [float(x) for x in l]
 
+@lru_cache(maxsize=None)
+def digits(num, output_len=None):
+    out = []
+    i = 0
+    while True:
+        out.append(num % 10)
+        num //= 10
+        i += 1
+        if (output_len is not None and i >= output_len) or num == 0:
+            break 
+    for _ in range(output_len - i):
+        out.append(0)
+    out.reverse()
+    return tuple(out)
+    
+
 @lru_cache()
 def count_freq(obj):
     out = {}

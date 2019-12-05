@@ -14,16 +14,8 @@ def parse(lines):
     return map_int(lines[0].strip().split(','))
 
 def split_opcode(num):
-    onum = num
-    out = [0]*4
-    out[-1] = num % 100
-    num //= 100
-
-    for i in range(3):
-        out[-2-i] = num % 10;
-        num //= 10
-    print(onum, out)
-    return out
+    op = num % 100 
+    return digits(num // 100, 3) + (op, )
 
 
 def run_prog(input_value, data):
