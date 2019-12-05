@@ -28,21 +28,30 @@ def split_opcode(num):
 
 def run_prog(input_value, data):
     data = list(data)
+
+    out = None
     index = 0
-    is_position_mode = True
     while index < len(data):
         #print(index, data[index])
 
         m3, m2, m1, op = split_opcode(data[index])
 
+        modes = (m1, m2, m3)
+
+        # get the num-th operation parameter, starting from 1, and applying the
+        # mode.
+        def get_param(num): 
+            x = data[index+num]
+            # immediate mode is 1, indirect mode is 0.
+            if modes[num-1] == 1:
+                return x
+            return data[x]
+
         if op == 99: 
             print('HALT')
             break
         elif op in (1,2): # 1 or 2
-            a = data[index+1]
-            if m1 == 0: a = data[a]
-            b = data[index+2]
-            if m2 == 0: b = data[b]
+            a, b = get_param(1), get_param(2)
             out_pos = data[index+3]
             
             #print(out_pos, out_pos % 4)
@@ -56,42 +65,30 @@ def run_prog(input_value, data):
             data[data[index+1]] = input_value
             index += 2
         elif op == 4:
-            x = data[index+1]
-            if m1 == 0: x = data[x]
+            x = get_param(1)
             print('PROGRAM OUPUT:', x)
+            out = x
             index += 2
         elif op == 5: # jump if true
-            x = data[index+1]
-            if m1 == 0: x = data[x]
+            x = get_param(1)
             if x != 0:
-                index = data[index+2]
-                if m2 == 0:
-                    index = data[index]
+                index = get_param(2)
             else:
                 index += 3
         elif op == 6: # jump if false
-            x = data[index+1]
-            if m1 == 0: x = data[x]
+            x = get_param(1)
             if x == 0:
-                index = data[index+2]
-                if m2 == 0:
-                    index = data[index]
+                index = get_param(2)
             else:
                 index += 3
         elif op == 7: # less than
-            a = data[index+1]
-            if m1 == 0: a = data[a]
-            b = data[index+2]
-            if m2 == 0: b = data[b]
+            a, b = get_param(1), get_param(2) 
             out_pos = data[index+3]
 
             data[out_pos] = int(a < b)
             index += 4
         elif op == 8: # equals
-            a = data[index+1]
-            if m1 == 0: a = data[a]
-            b = data[index+2]
-            if m2 == 0: b = data[b]
+            a, b = get_param(1), get_param(2) 
             out_pos = data[index+3]
 
             data[out_pos] = int(a == b)
@@ -99,13 +96,13 @@ def run_prog(input_value, data):
         else: 
             print('UNKNOWN OPCODE:', op)
 
-    return data[0]
+    return out
 
 def solve_1(data):
-    run_prog(1, data)
+    return run_prog(1, data)
 
 def solve_2(data):
-    run_prog(5, data)
+    return run_prog(5, data)
 
 if __name__ == "__main__":
     with open(INPUT) as f:
