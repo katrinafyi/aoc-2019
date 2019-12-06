@@ -20,6 +20,10 @@ def map_int(l) -> List[int]:
 def map_float(l) -> List[int]:
     return [float(x) for x in l]
 
+def sign(x):
+    if x == 0: return 0
+    return 1 if x > 0 else -1
+
 @lru_cache(maxsize=None)
 def digits(num, output_len=None):
     out = []

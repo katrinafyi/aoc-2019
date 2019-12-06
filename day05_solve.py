@@ -37,6 +37,7 @@ def run_prog(input_value, data):
             # immediate mode is 1, indirect mode is 0.
             if modes[num-1] == 1:
                 return x
+            assert x >= 0
             return data[x]
 
         if op == 99: 
