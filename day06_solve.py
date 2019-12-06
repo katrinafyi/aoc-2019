@@ -15,9 +15,7 @@ def parse(lines):
 
 
 def solve_1(data):
-    orbits = set(data )
-
-
+    orbits = set(data)
 
     cum_orbits = defaultdict(lambda: 0)
     while True:
@@ -27,18 +25,12 @@ def solve_1(data):
         tails = (right_planets - left_planets)
         if not tails: break
 
-        to_remove = set()
-        for o in orbits:
+        for o in tuple(orbits):
             if o[1] in tails:
                 cum_orbits[o[0]] += 1 + cum_orbits[o[1]]
-                to_remove.add(o)
-
-        orbits -= to_remove
-    print(cum_orbits)
-    print(sum(cum_orbits.values()))
-
-    
-        
+                orbits.remove(o)
+    #print(cum_orbits)
+    return (sum(cum_orbits.values()))
 
 def solve_2(data):
     orbits = set(data)
@@ -61,7 +53,7 @@ def solve_2(data):
                 if x[0] not in seen:
                     q.append((x[0], dist+1))
 
-    print(pos, dist, q)
+    return pos, dist, q
 
 if __name__ == "__main__":
     with open(INPUT) as f:
