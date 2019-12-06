@@ -4,7 +4,7 @@ from dataclasses import dataclass
 # import math
 # from statistics import mean
 
-INPUT = 'dayXX_input.txt'
+INPUT = 'dayXX_input.txt' if len(sys.argv) == 1 else sys.argv[1]
 
 # import numpy as np 
 # import scipy as sp
