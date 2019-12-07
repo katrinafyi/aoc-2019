@@ -48,7 +48,7 @@ class Program:
                 return data[x]
 
             if op == 99: 
-                print('HALT')
+                #print('HALT')
                 return None
             elif op in (1,2): # 1 or 2
                 a, b = get_param(1), get_param(2)
@@ -101,7 +101,6 @@ class Program:
         return None
 
 def solve_1(data):
-    amplifier = data
 
     from itertools import permutations
 
@@ -111,7 +110,10 @@ def solve_1(data):
         i = 0
 
         for p in perm:
-            x = run_prog((p, x), amplifier)
+            prog = Program()
+            prog.data = list(data)
+            prog.inputs = [perm[i], x]
+            x = prog.run_to_output()
             i += 1
         if x > m:
             m = x
@@ -149,7 +151,7 @@ def solve_2(data):
 
 if __name__ == "__main__":
     with open(INPUT) as f:
-        #print('sol 1:', solve_1(parse(f.readlines())))
+        print('sol 1:', solve_1(parse(f.readlines())))
         print()
         f.seek(0)
         print('sol 2:', solve_2(parse(f.readlines())))
