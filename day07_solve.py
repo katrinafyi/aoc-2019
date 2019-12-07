@@ -21,7 +21,6 @@ def split_opcode(num):
 def run_prog(data):
     data = list(data)
     index = 0
-    out = 'output not initialised'
     while index < len(data):
         #print(index, data[index])
 
@@ -41,7 +40,7 @@ def run_prog(data):
 
         if op == 99: 
             #print('HALT')
-            return out
+            return
         elif op in (1,2): # 1 or 2
             a, b = get_param(1), get_param(2)
             out_pos = data[index+3]
@@ -54,13 +53,16 @@ def run_prog(data):
         
             index += 4
         elif op== 3: # input
-            data[data[index+1]] = (yield out)
-            out = 'no new output since last input'
+            #print('waiting for input')
+            data[data[index+1]] = (yield 'yielded for input')
+            #print('got input', data[data[index+1]])
             index += 2
         elif op == 4:
             x = get_param(1)
             #print('PROGRAM OUPUT:', x)
-            out = x
+            #print('output', x)
+            #print('got after output', (yield x))
+            yield x
             index += 2
         elif op == 5: # jump if true
             x = get_param(1)
@@ -103,10 +105,7 @@ def solve_1(data):
             prog.send(perm[i])
             #print(i, 'next()', next(prog)) # advance coroutine to first input
             #print(i, prog.send(perm[i]))
-            try:
-                prog.send(x)
-            except StopIteration as e: # expect halt
-                x = e.value
+            x = prog.send(x)
             #print(i, x)
             i += 1
         if x > m:
@@ -118,6 +117,7 @@ def solve_2(data):
 
     m = 0
     for perm in permutations((5,6,7,8,9)):
+        #print('NEW PERM', perm)
         progs = [run_prog(data) for _ in range(5)]
         for i, p in enumerate(progs): 
             next(p) # advance to first input
@@ -127,14 +127,15 @@ def solve_2(data):
         run = True
         while run:
             for i, prog in enumerate(progs):
-                print(perm, i)
+                #print(perm, i)
+                # continue from input until next output.
+                x = prog.send(x) 
                 try:
-                    x = prog.send(x)
+                    next(prog) # continue from output to next input.
                 except StopIteration as e:
+                    # will break containing loop after E executes.
                     run = False 
-                    break
                     
-        print('done', perm, x)
         if x > m:
             m = x
     return m
