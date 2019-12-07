@@ -18,90 +18,78 @@ def split_opcode(num):
     return digits(num // 100, 3) + (op, )
 
 
-class Program:
-    def __init__(self):
-        self.index = 0
+def run_prog(data):
+    data = list(data)
+    index = 0
+    out = 'output not initialised'
+    while index < len(data):
+        #print(index, data[index])
 
-    def run_to_output(self):
+        m3, m2, m1, op = split_opcode(data[index])
 
-        data = self.data 
-        inputs = self.inputs
+        modes = (m1, m2, m3)
 
-        out = None
-        index = self.index
-        while index < len(data):
-            self.index = index
-            #print(index, data[index])
-
-            m3, m2, m1, op = split_opcode(data[index])
-
-            modes = (m1, m2, m3)
-
-            # get the num-th operation parameter, starting from 1, and applying the
-            # mode.
-            def get_param(num): 
-                x = data[index+num]
-                # immediate mode is 1, indirect mode is 0.
-                if modes[num-1] == 1:
-                    return x
-                assert x >= 0
-                return data[x]
-
-            if op == 99: 
-                #print('HALT')
-                return None
-            elif op in (1,2): # 1 or 2
-                a, b = get_param(1), get_param(2)
-                out_pos = data[index+3]
-                
-                #print(out_pos, out_pos % 4)
-                if op == 1:
-                    data[out_pos] = a + b
-                else:
-                    data[out_pos] = a * b
-            
-                index += 4
-            elif op== 3: # input
-                data[data[index+1]] = inputs.pop(0)
-                index += 2
-            elif op == 4:
-                x = get_param(1)
-                #print('PROGRAM OUPUT:', x)
-                index += 2
-                self.index = index
+        # get the num-th operation parameter, starting from 1, and applying the
+        # mode.
+        def get_param(num): 
+            x = data[index+num]
+            # immediate mode is 1, indirect mode is 0.
+            if modes[num-1] == 1:
                 return x
-            elif op == 5: # jump if true
-                x = get_param(1)
-                if x != 0:
-                    index = get_param(2)
-                else:
-                    index += 3
-            elif op == 6: # jump if false
-                x = get_param(1)
-                if x == 0:
-                    index = get_param(2)
-                else:
-                    index += 3
-            elif op == 7: # less than
-                a, b = get_param(1), get_param(2) 
-                out_pos = data[index+3]
+            assert x >= 0
+            return data[x]
 
-                data[out_pos] = int(a < b)
-                index += 4
-            elif op == 8: # equals
-                a, b = get_param(1), get_param(2) 
-                out_pos = data[index+3]
+        if op == 99: 
+            #print('HALT')
+            return out
+        elif op in (1,2): # 1 or 2
+            a, b = get_param(1), get_param(2)
+            out_pos = data[index+3]
+            
+            #print(out_pos, out_pos % 4)
+            if op == 1:
+                data[out_pos] = a + b
+            else:
+                data[out_pos] = a * b
+        
+            index += 4
+        elif op== 3: # input
+            data[data[index+1]] = (yield out)
+            out = 'no new output since last input'
+            index += 2
+        elif op == 4:
+            x = get_param(1)
+            #print('PROGRAM OUPUT:', x)
+            out = x
+            index += 2
+        elif op == 5: # jump if true
+            x = get_param(1)
+            if x != 0:
+                index = get_param(2)
+            else:
+                index += 3
+        elif op == 6: # jump if false
+            x = get_param(1)
+            if x == 0:
+                index = get_param(2)
+            else:
+                index += 3
+        elif op == 7: # less than
+            a, b = get_param(1), get_param(2) 
+            out_pos = data[index+3]
 
-                data[out_pos] = int(a == b)
-                index += 4
-            else: 
-                print('UNKNOWN OPCODE:', op)
-            self.index = index
+            data[out_pos] = int(a < b)
+            index += 4
+        elif op == 8: # equals
+            a, b = get_param(1), get_param(2) 
+            out_pos = data[index+3]
 
-        return None
+            data[out_pos] = int(a == b)
+            index += 4
+        else: 
+            print('UNKNOWN OPCODE:', op)
 
 def solve_1(data):
-
     from itertools import permutations
 
     m = 0
@@ -110,10 +98,16 @@ def solve_1(data):
         i = 0
 
         for p in perm:
-            prog = Program()
-            prog.data = list(data)
-            prog.inputs = [perm[i], x]
-            x = prog.run_to_output()
+            prog = run_prog(data)
+            next(prog)
+            prog.send(perm[i])
+            #print(i, 'next()', next(prog)) # advance coroutine to first input
+            #print(i, prog.send(perm[i]))
+            try:
+                prog.send(x)
+            except StopIteration as e: # expect halt
+                x = e.value
+            #print(i, x)
             i += 1
         if x > m:
             m = x
@@ -124,29 +118,26 @@ def solve_2(data):
 
     m = 0
     for perm in permutations((5,6,7,8,9)):
-        datas = [list(data) for _ in range(5)]
-        inputs = [[perm[_]] for _ in range(5)]
-
-        amplifiers = [Program() for i in range(5)]
-        for i, a in enumerate(amplifiers):
-            a.data = datas[i] 
-            a.inputs = inputs[i]
-
+        progs = [run_prog(data) for _ in range(5)]
+        for i, p in enumerate(progs): 
+            next(p) # advance to first input
+            p.send(perm[i])
 
         x = 0
-        run = 1
+        run = True
         while run:
-            for i, amp in enumerate(amplifiers):
-                inputs[i].append(x)
-                o = amp.run_to_output()
-                if o is None: 
-                    run = 0
+            for i, prog in enumerate(progs):
+                print(perm, i)
+                try:
+                    x = prog.send(x)
+                except StopIteration as e:
+                    run = False 
                     break
-                x = o
-        print(perm, x)
+                    
+        print('done', perm, x)
         if x > m:
             m = x
-    return  m
+    return m
     #return run_prog(5, data)
 
 if __name__ == "__main__":
