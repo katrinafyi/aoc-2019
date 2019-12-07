@@ -95,7 +95,7 @@ def min_max_tuples(tuples: Iterable[Tuple]) -> List[MinMax]:
     
     return [MinMax(mins[i], maxs[i]) for i in range(len(mins))]
 
-class Maximiser:
+class Maxer:
     def __init__(self, is_max=True):
         self.key = None 
         self.value = None
