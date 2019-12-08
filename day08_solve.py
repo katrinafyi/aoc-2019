@@ -14,57 +14,44 @@ INPUT = 'day08_input.txt' if len(sys.argv) == 1 else sys.argv[1]
 def parse(lines: List[str]):
     return ''.join(lines)
 
+WIDTH = 25 
+HEIGHT = 6
+
 def solve_1(data):
-    layers = []
-    i = 0
-    while i < len(data):
-        x = ''
-        for _ in range(25*6):
-            x += data[i]
-            i += 1
-        layers.append(x)
+    layers = chunks(data, WIDTH * HEIGHT)
     
     m = Maxer(is_max=False) 
     for l in layers:
         m.update(l, l.count('0'))
     l = (m.get_max())[0] 
 
-    print(l.count('1') * l.count('2'))
-    image = {(x,y): 2 for x in range(25) for y in range(6)}
+    return (l.count('1') * l.count('2'))
+
+def solve_2(data):
+    layers = chunks(data, WIDTH * HEIGHT)
+
+    image = {}
+    # first layer is at the top and overrides lower layers.
     for l in reversed(layers):
         for i, char in enumerate(l):
-            x = i % 25 
-            y = i // 25
-            assert y < 6
+            x = i % WIDTH 
+            y = i // WIDTH
+            assert 0 <= y < HEIGHT
             if char == '2': 
                 pass 
             else: 
-                assert (x,y) in image
                 image[(x,y)] = int(char)
     
-    for y in range(6):
-        for x in range(25):
+    chars = {
+        # 2 is transparent, 1 is white, 0 is black.
+        2: 'X', 1: 'o', 0: ' '
+    }
+    for y in range(HEIGHT):
+        for x in range(WIDTH):
             c = image[(x,y)]
-            if c == 2:
-                print('X', end='')
-            elif c == 1:
-                print('#', end='')
-            elif c == 0:
-                print(' ', end='')
-            else:
-                print(c, 'invalid colour')
-                assert False
+            print(chars[c], end='')
         print()
-
-
-
-
-
-def solve_2(data):
-    # 0 black,
-    # 1 white
-    # 2 transparent
-    pass 
+    return None
 
 if __name__ == "__main__":
     with open(INPUT) as f:

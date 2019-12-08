@@ -24,6 +24,10 @@ def sign(x):
     if x == 0: return 0
     return 1 if x > 0 else -1
 
+def chunks(l, n):
+    n = max(1, n)
+    return [l[i:i+n] for i in range(0, len(l), n)]
+
 @lru_cache(maxsize=None)
 def digits(num, output_len=None):
     out = []
