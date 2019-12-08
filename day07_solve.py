@@ -11,8 +11,8 @@ INPUT = 'day07_input.txt' if len(sys.argv) == 1 else sys.argv[1]
 # import numpy as np 
 # import scipy as sp
 
-def parse(lines):
-    return map_int(lines[0].strip().split(','))
+def parse(lines: List[str]):
+    return map_int(''.join(lines).strip().split(','))
 
 def split_opcode(num):
     op = num % 100 

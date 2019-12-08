@@ -1,6 +1,8 @@
 from util import * 
 from collections import defaultdict, deque, namedtuple
 from dataclasses import dataclass
+from typing import *
+import sys
 # import math
 # from statistics import mean
 
@@ -9,7 +11,7 @@ INPUT = 'dayXX_input.txt' if len(sys.argv) == 1 else sys.argv[1]
 # import numpy as np 
 # import scipy as sp
 
-def parse(lines):
+def parse(lines: List[str]):
     pass
 
 def solve_1(data):
