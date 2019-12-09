@@ -1,10 +1,18 @@
 import math
+import operator
 
-from functools import lru_cache
+from functools import lru_cache, reduce
 from collections import namedtuple, defaultdict
 from typing import Tuple, Iterator, Iterable, NamedTuple, List
 
+
 import re
+
+def prod(x):
+    return reduce(operator.mul, x, 1)
+
+def lmap(f, x):
+    return list(map(f, x))
 
 INT_REGEX = re.compile(r'-?\d+')
 UINT_REGEX = re.compile(r'\d+')
@@ -54,19 +62,25 @@ def count_freq(obj):
     return out
 
 CARDINALS = {
-    'U': (0, -1),
-    'D': (0, 1),
-    'L': (-1, 0),
-    'R': (1, 0)
+    'N': (0, -1),
+    'S': (0, 1),
+    'W': (-1, 0),
+    'E': (1, 0)
 }
 
-def adjacents(pos: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
+def neighbours(pos: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
     for s in CARDINALS.values():
         yield (pos[0] + s[0], pos[1] + s[1])
 
 def tup_add(x, y) -> Tuple[int]:
     assert len(x) == len(y)
     return tuple(xi + yi for xi, yi in zip(x, y))
+
+def tup_mul(x, y):
+    return tuple(xi * yi for xi, yi in zip(x, y))
+
+def tup_smul(k, x):
+    return tuple(k * xi for xi in x)
 
 def manhattan(p1, p2):
     return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])

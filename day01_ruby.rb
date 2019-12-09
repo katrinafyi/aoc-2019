@@ -12,5 +12,5 @@ end
 
 lines = File.readlines "day01_input.txt"
 lines = lines.map(&:strip).map(&:to_i)
-puts 'part 1', lines.map{|x| fuel(x)}.sum
+puts 'part 1', lines.map{ |x| fuel(x) }.sum
 puts 'part 2', lines.map{ |x| fuel2(x) }.sum
