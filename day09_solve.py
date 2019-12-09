@@ -113,22 +113,25 @@ class IntCode:
                 self.index += 2
             else: 
                 print('UNKNOWN OPCODE:', op)
+    
+    def run_to_halt(self):
+        out = []
+        while True: 
+            x = self.run_to_output()
+            if x is None:
+                break 
+            out.append(x)
+        return out
 
 def solve_1(data):
     d = defaultdict(lambda: 0, enumerate(data))
     prog = IntCode(d, [1])
-    while True:
-        y = prog.run_to_output()
-        if y is None: break
-        x = y
-        print(y)
-    return x
+    return prog.run_to_halt()
 
 def solve_2(data):
     d = defaultdict(lambda: 0, enumerate(data))
     prog = IntCode(d, [2])
-    x = prog.run_to_output()
-    return x
+    return prog.run_to_halt()
 
 if __name__ == "__main__":
     with open(INPUT) as f:
