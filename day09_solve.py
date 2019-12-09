@@ -36,14 +36,18 @@ class IntCode:
             def get_pos(num):
                 """
                 Gets the position referred to by the num-th parameter. 
-                Param must not be in immediate mode.
                 """
+                m = modes[num-1]
+                if m == 1: 
+                    return self.index + num # immediate mode
+                
                 x = data[self.index+num]
                 # relative is 2, normal position mode is 0.
-                assert modes[num-1] != 1
-                if modes[num-1] == 2:
-                    return x+self.relbase
-                return x
+                if m == 2: 
+                    return x + self.relbase # relative mode
+                elif m == 0: 
+                    return x # position mode
+                assert False
 
             def get_param(num): 
                 """
@@ -51,8 +55,6 @@ class IntCode:
                 and applying the modes.
                 """
                 # immediate mode is 1, other modes use indirection.
-                if modes[num-1] == 1:
-                    return data[self.index+num]
                 return data[get_pos(num)]
 
             if op == 99: 
