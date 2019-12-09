@@ -29,28 +29,28 @@ def solve_1(data):
 
 def solve_2(data):
     layers = chunks(data, WIDTH * HEIGHT)
-
-    image = {}
-    # first layer is at the top and overrides lower layers.
-    for l in reversed(layers):
-        for i, char in enumerate(l):
-            x = i % WIDTH 
-            y = i // WIDTH
-            assert 0 <= y < HEIGHT
-            if char == '2': 
-                pass 
-            else: 
-                image[(x,y)] = int(char)
+    layers = lmap(list, layers)
     
+
+    num_layers = len(layers)
+    for i in reversed(range(num_layers)):
+        if i == 0:
+            continue 
+        for pos in range(WIDTH*HEIGHT):
+            # replace transparent pixels above with pixel underneath.
+            if layers[i-1][pos] == '2':
+                layers[i-1][pos] = layers[i][pos]
+
     chars = {
         # 2 is transparent, 1 is white, 0 is black.
-        2: 'X', 1: 'o', 0: ' '
+        '2': 'X', '1': 'o', '0': ' '
     }
-    for y in range(HEIGHT):
-        for x in range(WIDTH):
-            c = image[(x,y)]
-            print(chars[c], end='')
-        print()
+    for i in range(WIDTH * HEIGHT):
+        if i % WIDTH == 0:
+            print()
+        c = layers[0][i]
+        print(chars[c], end='')
+    print()
     return None
 
 if __name__ == "__main__":
