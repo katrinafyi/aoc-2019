@@ -5,6 +5,7 @@ from typing import *
 import sys
 
 import fractions as frac
+from pprint import pprint
 
 import math
 # from statistics import mean
@@ -50,30 +51,28 @@ def solve_1(data):
         dy //= g
         return (dx, dy)
 
+    def ell2(a, b):
+        return ((a[0] - b[0])**2 + (a[1] - b[1])**2)**0.5
+
     m = Maxer() 
+
     for centre in data:
 
-        for other in data:
-            if other == centre: continue 
+        def f(other):
+            angle =( math.degrees(math.atan2(other[1] - centre[1], other[0] - centre[0])))
+            if angle < 0: angle += 360
+            return (angle, ell2(centre, other), other)
 
-        groups = defaultdict(set)
-        remaining = set(data)
-        remaining.remove(centre)
-        #print('testing centre of', centre)
-        while remaining:
-            other = remaining.pop()
-            #print('  direction of', other)
-
-            g = grad(centre, other)
-            groups[g].add(other)
-
-            for other2 in tuple(remaining):
-                if grad(centre, other2) == g:
-                    groups[g].add(other2)
-                    remaining.remove(other2)
-        from pprint import pprint 
-        print(centre, (groups))
-        m.update(centre, len(groups) + 1)
+        centre = (22, 25)
+        d = set(data)
+        d.remove(centre)
+        x = lmap(f, d)
+        x.sort()
+        pprint(x)
+        print(x[199])
+        
+        break
+        m.update(centre, len(angles))
     print(m.get_max())
     
 
