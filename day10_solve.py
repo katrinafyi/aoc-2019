@@ -54,26 +54,39 @@ def solve_1(data):
     def ell2(a, b):
         return ((a[0] - b[0])**2 + (a[1] - b[1])**2)**0.5
 
-    m = Maxer() 
+    angle = 0
+    from itertools import count
 
-    for centre in data:
+    data = set(data)
+    centre = (22, 25)
+    data.remove(centre)
 
-        def f(other):
-            angle =( math.degrees(math.atan2(other[1] - centre[1], other[0] - centre[0])))
-            if angle < 0: angle += 360
-            return (angle, ell2(centre, other), other)
+    def f(other):
+        a =( 90 + math.degrees(math.atan2(other[1] - centre[1], other[0] - centre[0])))
+        if a < 0: a += 360
+        return (a, ell2(centre, other), other)
 
-        centre = (22, 25)
-        d = set(data)
-        d.remove(centre)
-        x = lmap(f, d)
-        x.sort()
-        pprint(x)
-        print(x[199])
+    d = lmap(f, data)
+
+    angles = set(x[0] for x in d)
+    by_angle = {}
+    for x in d:
+        if x[0] not in by_angle:
+            by_angle[x[0]] = []
+        by_angle[x[0]].append(x)
+    pprint(by_angle)
+    
+
+    angle = 0
+    for i in count():
+        x = by_angle[angle].pop(0)
+        print(i, x)
+        if i > 200: break
+        if not by_angle[angle]:
+            del by_angle[angle]
+            angles.remove(angle)
+        angle = min(((a - angle) % 360, a) for a in angles if a != angle)[1]
         
-        break
-        m.update(centre, len(angles))
-    print(m.get_max())
     
 
 def solve_2(data):
