@@ -6,7 +6,7 @@ import sys
 
 import fractions as frac
 
-# import math
+import math
 # from statistics import mean
 
 INPUT = 'day10_input.txt' if len(sys.argv) == 1 else sys.argv[1]
@@ -40,8 +40,22 @@ def solve_1(data):
     def is_on_line(x1, y1, x2, y2, x3, y3):
         return (x2 - x1) * (y3 - y1) == (y2 - y1) * (x3 - x1)
 
+    def grad(a, b):
+        a = centre 
+        b = other
+        dx = b[0] - a[0]
+        dy = b[1] - a[1]
+        g = frac.gcd(dx, dy)
+        dx //= g
+        dy //= g
+        return (dx, dy)
+
     m = Maxer() 
     for centre in data:
+
+        for other in data:
+            if other == centre: continue 
+
         groups = defaultdict(set)
         remaining = set(data)
         remaining.remove(centre)
@@ -50,22 +64,15 @@ def solve_1(data):
             other = remaining.pop()
             #print('  direction of', other)
 
-            a = centre 
-            b = other
-            dx = b[0] - a[0]
-            dy = b[1] - a[1]
-            g = frac.gcd(dx, dy)
-            dx //= g
-            dy //= g
-            groups[(dx,dy)].add(other)
+            g = grad(centre, other)
+            groups[g].add(other)
 
             for other2 in tuple(remaining):
-                if is_on_line(*centre, *other, *other2):
-                    #print('   found on line:', other2)
-                    groups[(dx,dy)].add(other2)
+                if grad(centre, other2) == g:
+                    groups[g].add(other2)
                     remaining.remove(other2)
         from pprint import pprint 
-        #print(centre, (groups))
+        print(centre, (groups))
         m.update(centre, len(groups) + 1)
     print(m.get_max())
     
