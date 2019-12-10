@@ -59,3 +59,4 @@ if __name__ == '__main__':
     print(iter(San.range(7)))
     print(San.count(15).islice(1, 10).map(lambda x: x**2).zip(San.count(), San.count(10, 2)).collect())
     print(San.zip(San.range(4), San.repeat(2)).starmap(pow).sum())
+    map(lambda x: x*2, map(int, [1, 2]))
