@@ -28,29 +28,16 @@ def lcm(x, y):
 
 
 
-    
-
 def solve_1(data):
-    max_y = max(pos[1] for pos in data)
-    min_y = min(pos[1] for pos in data)
-    max_x = max(pos[0] for pos in data)
-    min_x = min(pos[0] for pos in data)
+    m = Maxer()
+    for centre in data:
+        angles = set(math.atan2(other[1] - centre[1], other[0] - centre[0])
+            for other in data if other != centre)
+        m.update(centre, len(angles))
+    return m.get_max()
 
-    from itertools import combinations
 
-    def is_on_line(x1, y1, x2, y2, x3, y3):
-        return (x2 - x1) * (y3 - y1) == (y2 - y1) * (x3 - x1)
-
-    def grad(a, b):
-        a = centre 
-        b = other
-        dx = b[0] - a[0]
-        dy = b[1] - a[1]
-        g = frac.gcd(dx, dy)
-        dx //= g
-        dy //= g
-        return (dx, dy)
-
+def solve_2(data):
     def ell2(a, b):
         return ((a[0] - b[0])**2 + (a[1] - b[1])**2)**0.5
 
@@ -74,23 +61,19 @@ def solve_1(data):
         if x[0] not in by_angle:
             by_angle[x[0]] = []
         by_angle[x[0]].append(x)
-    pprint(by_angle)
+    #pprint(by_angle)
     
 
     angle = 0
     for i in count():
         x = by_angle[angle].pop(0)
-        print(i, x)
-        if i > 200: break
+        #print(i, x)
+        if i == 199: break
         if not by_angle[angle]:
             del by_angle[angle]
             angles.remove(angle)
         angle = min(((a - angle) % 360, a) for a in angles if a != angle)[1]
-        
-    
-
-def solve_2(data):
-    pass 
+    return x
 
 if __name__ == "__main__":
     with open(INPUT) as f:
