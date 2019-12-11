@@ -26,53 +26,62 @@ def parse(lines: List[str]):
 def lcm(x, y):
     return x * y // frac.gcd(x, y)
 
+@lru_cache(maxsize=None)
+def angle(a, b):
+    assert a != b
+    
+    dx, dy = tup_sub(b, a)
+    if dx == 0: 
+        dy //= abs(dy)
+    elif dy == 0:
+        dx //= abs(dx)
+    else:
+        g = math.gcd(dx, dy)
+        dx, dy = dx // g, dy // g
+    return (dx, dy)
 
 
 def solve_1(data):
     m = Maxer()
     for centre in data:
-        angles = set(math.atan2(other[1] - centre[1], other[0] - centre[0])
-            for other in data if other != centre)
+        d = set(data)
+        d.remove(centre)
+        angles = set(map(lambda x: angle(centre, x), d))
         m.update(centre, len(angles))
     return m.get_max()
 
-
 def solve_2(data):
-    def ell2(a, b):
-        return ((a[0] - b[0])**2 + (a[1] - b[1])**2)**0.5
+    centre = solve_1(data)[0]
 
-    angle = 0
-    from itertools import count
+    def ell2(a,b):
+        return sum(map(lambda x: x*x, tup_sub(a, b)))**0.5
 
-    data = set(data)
-    centre = (22, 25)
     data.remove(centre)
 
-    def f(other):
-        a =( 90 + math.degrees(math.atan2(other[1] - centre[1], other[0] - centre[0])))
-        if a < 0: a += 360
-        return (a, ell2(centre, other), other)
-
-    d = lmap(f, data)
-
-    angles = set(x[0] for x in d)
-    by_angle = {}
-    for x in d:
-        if x[0] not in by_angle:
-            by_angle[x[0]] = []
-        by_angle[x[0]].append(x)
-    #pprint(by_angle)
+    def angle_deviation(a):
+        """ Computes angle of point a from the centre origin. 
+        Positive means clockwise, angle of 0 is straight up.
+        """
+        a = (-90 + math.degrees(math.atan2(-a[1], -a[0])))
+        return (a) % 360
     
-
-    angle = 0
-    for i in count():
-        x = by_angle[angle].pop(0)
-        #print(i, x)
-        if i == 199: break
-        if not by_angle[angle]:
-            del by_angle[angle]
-            angles.remove(angle)
-        angle = min(((a - angle) % 360, a) for a in angles if a != angle)[1]
+    all_angles = sorted(map(
+        lambda y: (angle_deviation(angle(centre, y)),ell2(centre, y), angle(centre, y), y)
+    , data))
+    
+    
+    cur_a2 = None
+    q = deque(all_angles)
+    i = 0 # number of vaporised asteroids
+    while i < 200:
+        x = q.popleft()
+        if cur_a2 is None or cur_a2 != x[2]:
+            cur_a2 = x[2]
+            # vaporise this asteroid
+            #print(i, x) 
+            i += 1
+        else:
+            q.append(x)
     return x
 
 if __name__ == "__main__":
