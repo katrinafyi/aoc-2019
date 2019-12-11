@@ -76,6 +76,10 @@ def tup_add(x, y) -> Tuple[int]:
     assert len(x) == len(y)
     return tuple(xi + yi for xi, yi in zip(x, y))
 
+def tup_sub(x, y) -> Tuple[int]:
+    assert len(x) == len(y)
+    return tuple(xi - yi for xi, yi in zip(x, y))
+
 def tup_mul(x, y):
     return tuple(xi * yi for xi, yi in zip(x, y))
 
