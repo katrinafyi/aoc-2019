@@ -3,7 +3,6 @@ from collections import defaultdict, deque, namedtuple
 from dataclasses import dataclass, field
 from typing import *
 import sys
-# import math
 # from statistics import mean
 
 INPUT = 'day12_input.txt' if len(sys.argv) == 1 else sys.argv[1]
@@ -20,14 +19,36 @@ class Moon:
     velocity: list = field(default_factory=lambda: tuple([0, 0, 0]))
 
 def solve_1(data):
-    from copy import deepcopy
-
     moons = tuple([Moon(tuple(x)) for x in data])
 
-    seen_velocities = set()
-    
-    for dim in range(3):
+    for t in range(1000):
+        # print('after', t)
+        # for m in moons: print(m)
 
+        moons2 = []
+        for m in moons:
+            vel = list(m.velocity)
+            for m2 in moons:
+                if m2 == m: continue 
+                i = 0
+                for a, b in zip(m.pos, m2.pos):
+                    vel[i] += sign(b - a)
+                    i += 1
+            vel = tuple(vel)
+            
+            moons2.append(Moon(tup_add(m.pos, vel), vel))
+        moons = moons2
+
+    E = 0
+    for m in moons:
+        E += sum(map(abs, m.pos)) * sum(map(abs, m.velocity))
+    return E
+
+def solve_2(data):
+    moons = tuple([Moon(tuple(x)) for x in data])
+
+    periods = []
+    for dim in range(3):
         xs = [m.pos[dim] for m in moons]
         deltas = [0]*4
         print(xs)
@@ -54,44 +75,9 @@ def solve_1(data):
                 prev = t
                 seen.clear()
             seen.add(tup)
-
-    return
-
-    for t in range(1000):
-        # print('after', t)
-        # for m in moons: print(m)
-
-        moons2 = []
-        for m in moons:
-            vel = list(m.velocity)
-            for m2 in moons:
-                if m2 == m: continue 
-                i = 0
-                for a, b in zip(m.pos, m2.pos):
-                    vel[i] += sign(b - a)
-                    i += 1
-            vel = tuple(vel)
-            
-            moons2.append(Moon(tup_add(m.pos, vel), vel))
-        moons = moons2
-        # print()
-        # print()
-
-        v = tuple(m.pos for m in moons)
-        if v in seen_velocities: 
-            print(v)
-            break
-        seen_velocities.add(v)
-
-        # E = 0
-        # for m in moons:
-        #     E += sum(map(abs, m.pos)) * sum(map(abs, m.velocity))
-        # print(E)
-        if t % 1000 == 0:
-            print(t)
-
-def solve_2(data):
-    pass 
+        periods.append(t - prev)
+    print(periods)
+    return lcm_many(periods)
 
 if __name__ == "__main__":
     with open(INPUT) as f:

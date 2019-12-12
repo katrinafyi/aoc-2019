@@ -1,12 +1,21 @@
 import math
 import operator
 
+from math import gcd
 from functools import lru_cache, reduce
 from collections import namedtuple, defaultdict
 from typing import Tuple, Iterator, Iterable, NamedTuple, List
 
-
 import re
+
+def lcm(a, b):
+    return a * b // gcd(a, b)
+
+def lcm_many(args):
+    return reduce(lcm, args)
+
+def gcd_many(args):
+    return reduce(gcd, args)
 
 def prod(x):
     return reduce(operator.mul, x, 1)
