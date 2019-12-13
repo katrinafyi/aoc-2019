@@ -95,8 +95,11 @@ def tup_mul(x, y):
 def tup_smul(k, x):
     return tuple(k * xi for xi in x)
 
+def euclidean(p1, p2):
+    return sum((x-y)**2 for x, y in zip(p1, p2))**0.5
+
 def manhattan(p1, p2):
-    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+    return sum(abs(x-y) for x, y in zip(p1, p2))
 
 MinMax = namedtuple('MinMax', ('min', 'max'))
 
