@@ -5,6 +5,7 @@ from collections import defaultdict, deque, namedtuple
 from dataclasses import dataclass, field
 from math import *
 from typing import *
+from itertools import *
 
 # from intcode import *
 

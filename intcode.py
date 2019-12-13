@@ -1,5 +1,6 @@
 from util import * 
 from dataclasses import dataclass, field
+from collections import defaultdict
 
 def split_opcode(num):
     op = num % 100 
@@ -11,6 +12,10 @@ class IntCode:
     inputs: list = field(default_factory=list)
     index: int = 0 
     relbase: int = 0
+
+    @classmethod 
+    def from_list(cls, memory):
+        return cls(defaultdict(int, enumerate(memory)))
 
     def run_to_output(self):
         data = self.data
@@ -60,7 +65,7 @@ class IntCode:
                 self.index += 4
             elif op== 3: # input
                 #print('waiting for input')
-                data[get_pos(1)] = self.inputs.popleft()
+                data[get_pos(1)] = self.inputs.pop(0)
                 #print('got input', data[data[index+1]])
                 self.index += 2
             elif op == 4:
