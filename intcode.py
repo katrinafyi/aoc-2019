@@ -1,7 +1,6 @@
 from util import * 
 from dataclasses import dataclass, field
 
-
 def split_opcode(num):
     op = num % 100 
     return digits(num // 100, 3) + (op, )
@@ -61,7 +60,7 @@ class IntCode:
                 self.index += 4
             elif op== 3: # input
                 #print('waiting for input')
-                data[get_pos(1)] = self.inputs[0]
+                data[get_pos(1)] = self.inputs.popleft()
                 #print('got input', data[data[index+1]])
                 self.index += 2
             elif op == 4:
