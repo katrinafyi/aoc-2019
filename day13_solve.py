@@ -3,10 +3,9 @@ from util import *
 import sys
 from collections import defaultdict, deque, namedtuple
 from dataclasses import dataclass, field
+from itertools import *
 from math import *
 from typing import *
-
-import os
 
 from intcode import *
 
@@ -45,37 +44,6 @@ def solve_1(data):
     # if b_vel: print('velocity', co.name_map[b_vel])
     return sum(x == 2 for x in board.values())
 
-from itertools import count
-def test(p):
-    displayed = 0
-    for i in count():
-        try:
-            x = p.run_to_output()
-            y = p.run_to_output()
-            t = p.run_to_output()
-        except IndexError:
-            return True, p
-        if None in (x, y, t): 
-            break
-        if x == -1 and y == 0:
-            displayed = t
-            continue
-    return displayed, i
-
-def filter_stupid(seq):
-    i = 20
-    for j in seq:
-        i += j 
-        if not 0 < i < 24:
-            return False 
-    return True
-
-def copy_program(prog: IntCode):
-    p = IntCode(prog.data.copy(), prog.inputs.copy())
-    p.index = prog.index 
-    p.relbase = prog.relbase 
-    return p
-
 """
 0 is an empty tile. No game object appears in this tile.
 1 is a wall tile. Walls are indestructible barriers.
@@ -83,7 +51,6 @@ def copy_program(prog: IntCode):
 3 is a horizontal paddle tile. The paddle is indestructible.
 4 is a ball tile. The ball moves diagonally and bounces off objects.
 """
-from itertools import product
 def solve_2(data):
     
     data[0] = 2
