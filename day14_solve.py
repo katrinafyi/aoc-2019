@@ -36,47 +36,90 @@ def parse(lines: List[str]):
         out.append((left, right))
     return out
 
+def compute_ore_needed(fuel, by_result):
+    required = defaultdict(int)
+    required['FUEL'] = fuel
+    while True:
+        # print(required)
+        mats_needed =set (x for x in required if required[x] > 0 and x != 'ORE')
+        if not mats_needed: break
+
+        m = mats_needed.pop()
+        p_ing, p_amount = by_result[m]
+        p_mul = ceil(required[m] // p_amount)
+        # print('need for', m, need)
+        for mat, amount in p_ing.items():
+            required[mat] += amount * p_mul
+        required[m] -= p_amount * p_mul
+    return required['ORE']
+
+    if any(x < 0 for x in required.values()):
+        # print(fuel, 'had leftover')
+        # continue
+        pass
+    return required['ORE']
+
 def solve_1(data):
     from copy import deepcopy 
     original = deepcopy(data)
+    
+    def to_dict(mat_list):
+        return {m.name: m.amount for m in mat_list}
 
-    recipes = (data)
-    def find_recipe(goal: Mat):
-        if goal.amount == 0: return ()
-        out = []
-        for input, output in recipes:
-            if output.name == goal.name:
-                repeats = ceil(goal.amount / output.amount)
-                for m in input:
-                    out.append(Mat(m.amount * repeats, m.name))
-                return out, Mat(repeats * output.amount, output.name)
-        assert 0
-
-    by_result = {result: input for input, result in recipes}
-    next_mat = deque()
-    next_mat.append(Mat(1, 'FUEL'))
-    while True:
-        result = next_mat.popleft()
-        if result == 'ORE'
-        inputs = by_result[result]
-        us = result.amount
-        for i in inputs:
-            us = lcm(us, i.amount)
+    recipes: List[Tuple[List[Mat], Mat]] = (data)
+    # recipes are a pair (ingredients, quantity) where ingredients is a dict
+    # keyed by material with values of number required.
+    by_result = {result.name: (to_dict(input), result.amount) for input, result in recipes}
 
 
-            print()
-        print(result, input)
+    # expand all non-ORE ingredients into the producing recipes and maintain
+    # perfect ratio. merges all recipes into one 'mega recipe' from ORE to FUEL
+    mega_ing, mega_amount = deepcopy(by_result['FUEL'])
+    while any(m != 'ORE' for m in mega_ing.keys()):
+        # print(mega_ing, mega_amount)
+        target = next(m for m in mega_ing.keys() if m != 'ORE')
+        # print(target, by_result[target])
+        p_ing, p_amount = (by_result[target])
+        l = (lcm(p_amount, mega_ing[target]))
 
-    seen = set()
-    for fuel in range(100000, 200000):
+        p_mul = l // p_amount 
+        m_mul = l // mega_ing[target]
+
+        for k in mega_ing:
+            mega_ing[k] *= m_mul
+        for new_ing in p_ing:
+            if new_ing not in mega_ing: mega_ing[new_ing] = 0
+            mega_ing[new_ing] += p_ing[new_ing] * p_mul
+        mega_ing[target] -= p_amount * p_mul
+        assert mega_ing[target] == 0
+        del mega_ing[target]
+        mega_amount *= m_mul
+        # print(mega_ing, mega_amount)
+        # return
+    trillion = 1000000000000
+    print(mega_ing, mega_amount)
+    mega_ore = mega_ing['ORE']
+
+    from fractions import Fraction 
+
+    ratio = Fraction(mega_ore, mega_amount)
+    print(ratio)
+
+    mega_ore, mega_amount = ratio.numerator, ratio.denominator
+    
+    clean_fuel = mega_amount * (trillion // mega_ore)
+    remaining_ore = trillion % mega_ore
+
+    
+
+    print('remaining ore:', remaining_ore)
+
+    def test_fuel(fuel):
         required = defaultdict(int)
-        prev_ore = 0
         required['FUEL'] = fuel
         while True:
             # print(required)
-            mats_needed =set (x for x in required if required[x] > 0)
-            if 'ORE' in mats_needed: mats_needed.remove('ORE')
-
+            mats_needed =set (x for x in required if required[x] > 0 and x != 'ORE')
             if not mats_needed: break
 
             m = mats_needed.pop()
@@ -87,17 +130,17 @@ def solve_1(data):
             required[produced.name] -= produced.amount
 
         if any(x < 0 for x in required.values()):
-            print(fuel, 'had leftover')
-            continue
-        this = required['ORE'] - prev_ore
-        print(fuel, '-th fuel took', this)
-        if this in seen:
-            print('seen!')
-        seen.add(this)
-        prev_ore = required['ORE']
+            # print(fuel, 'had leftover')
+            # continue
+            pass
+        ore = required['ORE']
+        return ore <= remaining_ore
+    
+    nasty_fuel = binary_search(test_fuel)
 
-
-        
+    print('>> clean multiple fuel: ', clean_fuel)
+    print('>> binary searched fuel: ', nasty_fuel)
+    return clean_fuel + nasty_fuel
 
     
 

@@ -8,6 +8,29 @@ from typing import Tuple, Iterator, Iterable, NamedTuple, List
 
 import re
 
+def binary_search(test_function, exponent=19, debug=False):
+    """ Returns the largest integer such that test_function(i) is True.
+
+    Binary searches the range 0, ..., 2^exponent.
+    Assumes test_function is a monotonic function.
+    """
+    max_true = -1
+    basis = 2**exponent
+    current = basis*2
+    while basis >= 0:
+        res = test_function(current)
+        if debug: print('binary_search: ', current, res)
+        if not res:
+            current -= basis
+        else:
+            max_true = max(max_true, current)
+            current += basis
+        if basis == 0: break
+        basis //= 2
+    if debug: print(' returned:', max_true)
+    return max_true
+
+
 def lcm(a, b):
     return a * b // gcd(a, b)
 
