@@ -45,12 +45,14 @@ def compute_ore_needed(fuel, by_result):
         if not mats_needed: break
 
         m = mats_needed.pop()
+        # print(m)
         p_ing, p_amount = by_result[m]
-        p_mul = ceil(required[m] // p_amount)
+        p_mul = ceil(required[m] / p_amount)
         # print('need for', m, need)
         for mat, amount in p_ing.items():
             required[mat] += amount * p_mul
         required[m] -= p_amount * p_mul
+        # input()
     return required['ORE']
 
     if any(x < 0 for x in required.values()):
@@ -59,18 +61,22 @@ def compute_ore_needed(fuel, by_result):
         pass
     return required['ORE']
 
+def to_dict(mat_list):
+    return {m.name: m.amount for m in mat_list}
+
+from copy import deepcopy 
 def solve_1(data):
-    from copy import deepcopy 
-    original = deepcopy(data)
-    
-    def to_dict(mat_list):
-        return {m.name: m.amount for m in mat_list}
 
     recipes: List[Tuple[List[Mat], Mat]] = (data)
     # recipes are a pair (ingredients, quantity) where ingredients is a dict
     # keyed by material with values of number required.
     by_result = {result.name: (to_dict(input), result.amount) for input, result in recipes}
 
+    return compute_ore_needed(1, by_result)
+
+def solve_2(data):
+    recipes = (data)
+    by_result = {result.name: (to_dict(input), result.amount) for input, result in recipes}
 
     # expand all non-ORE ingredients into the producing recipes and maintain
     # perfect ratio. merges all recipes into one 'mega recipe' from ORE to FUEL
@@ -100,52 +106,19 @@ def solve_1(data):
     print(mega_ing, mega_amount)
     mega_ore = mega_ing['ORE']
 
-    from fractions import Fraction 
-
-    ratio = Fraction(mega_ore, mega_amount)
-    print(ratio)
-
-    mega_ore, mega_amount = ratio.numerator, ratio.denominator
-    
     clean_fuel = mega_amount * (trillion // mega_ore)
     remaining_ore = trillion % mega_ore
-
-    
 
     print('remaining ore:', remaining_ore)
 
     def test_fuel(fuel):
-        required = defaultdict(int)
-        required['FUEL'] = fuel
-        while True:
-            # print(required)
-            mats_needed =set (x for x in required if required[x] > 0 and x != 'ORE')
-            if not mats_needed: break
-
-            m = mats_needed.pop()
-            need, produced = find_recipe(Mat(required[m], m))
-            # print('need for', m, need)
-            for x in need:
-                required[x.name] += x.amount
-            required[produced.name] -= produced.amount
-
-        if any(x < 0 for x in required.values()):
-            # print(fuel, 'had leftover')
-            # continue
-            pass
-        ore = required['ORE']
-        return ore <= remaining_ore
+        return compute_ore_needed(fuel, by_result) <= remaining_ore
     
-    nasty_fuel = binary_search(test_fuel)
+    nasty_fuel = binary_search_up(test_fuel, debug=1)
 
     print('>> clean multiple fuel: ', clean_fuel)
     print('>> binary searched fuel: ', nasty_fuel)
     return clean_fuel + nasty_fuel
-
-    
-
-def solve_2(data):
-    pass 
 
 if __name__ == "__main__":
     with open(INPUT) as f:

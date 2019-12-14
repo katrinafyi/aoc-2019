@@ -5,10 +5,11 @@ from math import gcd
 from functools import lru_cache, reduce
 from collections import namedtuple, defaultdict
 from typing import Tuple, Iterator, Iterable, NamedTuple, List
+from itertools import count
 
 import re
 
-def binary_search(test_function, exponent=19, debug=False):
+def binary_search(test_function, exponent, debug=False):
     """ Returns the largest integer such that test_function(i) is True.
 
     Binary searches the range 0, ..., 2^exponent.
@@ -29,6 +30,12 @@ def binary_search(test_function, exponent=19, debug=False):
         basis //= 2
     if debug: print(' returned:', max_true)
     return max_true
+
+def binary_search_up(test_function, debug=False):
+    for exponent in count(1):
+        x = 2**exponent
+        if not test_function(x):
+            return binary_search(test_function, exponent-1, debug)
 
 
 def lcm(a, b):
