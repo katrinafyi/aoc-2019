@@ -19,7 +19,7 @@ INPUT = 'day15_input.txt' if len(sys.argv) == 1 else sys.argv[1]
 # import scipy as sp
 
 def parse(lines: List[str]):
-    return ints(lines[0])
+    return tuple(ints(lines[0]))
 
 directions = {
     1: co.N,
@@ -48,8 +48,7 @@ def explore_board(data: Tuple[int]):
     while q:
         seq, pos, p = q.pop()
         # print(seq, pos)
-        if pos in seen: 
-            continue 
+        if pos in seen: continue 
         board[pos] = ' '
         seen.add(pos)
 
@@ -76,10 +75,10 @@ def explore_board(data: Tuple[int]):
     return board, oxygen, oxygen_len
 
 def solve_1(data):
-    return explore_board(tuple(data))[1:]
+    return explore_board((data))[1:]
 
 def solve_2(data):
-    board, oxygen = explore_board(tuple(data))[:-1]
+    board, oxygen = explore_board((data))[:-1]
 
     print('done exporation using intcode')
     q = deque() 
