@@ -17,6 +17,9 @@ class IntCode:
     def from_list(cls, memory):
         return cls(defaultdict(int, enumerate(memory)))
 
+    def deepcopy(self):
+        return IntCode(defaultdict(int, self.data), list(self.inputs), self.index, self.relbase)
+
     def run_to_output(self):
         data = self.data
         while self.index < len(data):

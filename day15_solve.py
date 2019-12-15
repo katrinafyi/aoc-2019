@@ -32,16 +32,17 @@ rev_dir = {
     v:k for k, v in directions.items()
 }
 
-def solve_1(data):
-    from copy import deepcopy
+@lru_cache() # v important
+def explore_board(data: Tuple[int]):
     p = IntCode.from_list(data)
 
     board = dict() 
     pos = co.ORIGIN
     oxygen = None
+    oxygen_len = None
 
     q = deque() 
-    # program in the queue is assumed to be at the given position.
+    # program state in the queue is assumed to be at the given position.
     q.append(((), co.ORIGIN, p)) 
     seen = set()
     while q:
@@ -53,11 +54,10 @@ def solve_1(data):
         seen.add(pos)
 
         original = p
-
         for value, dir in directions.items():
             new_seq = seq + (dir, )
             new_pos = pos + dir
-            p = deepcopy(original)
+            p = original.deepcopy()
             p.inputs.append(value)
             x = (p.run_to_output())
             # print('test:',value, '=', x)
@@ -67,13 +67,20 @@ def solve_1(data):
             if x == 2: 
                 board[new_pos] = ' '
                 oxygen = new_pos
+                oxygen_len = len(new_seq)
                 print(new_seq, len(new_seq), oxygen)
                 # return
             else:
                 board[new_pos] = ' '
             q.append((new_seq, new_pos, p))
-            # go back.
-            # print('input:',rev_dir[-dir])
+    return board, oxygen, oxygen_len
+
+def solve_1(data):
+    return explore_board(tuple(data))[1:]
+
+def solve_2(data):
+    board, oxygen = explore_board(tuple(data))[:-1]
+
     print('done exporation using intcode')
     q = deque() 
     q.append((0, oxygen))
@@ -88,14 +95,9 @@ def solve_1(data):
         for dir in co.CARDINALS:
             if board[pos + dir] != '#':
                 q.append((t+1, pos+dir))
-    print(max_t)
+    print('maximum distance', max_t)
+    return max_t
 
-        
-    # print(board)
-
-
-def solve_2(data):
-    pass 
 
 if __name__ == "__main__":
     with open(INPUT) as f:
