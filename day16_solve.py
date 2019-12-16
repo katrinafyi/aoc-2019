@@ -20,7 +20,8 @@ def dprint(*args, **kwargs):
 INPUT = 'day16_input.txt' if len(sys.argv) == 1 else sys.argv[1]
 
 import numpy as np 
-# import scipy as sp
+import scipy as sp
+import scipy.sparse
 
 def parse(lines: List[str]):
     return tuple(map(int, lines[0]))
@@ -36,15 +37,34 @@ def pattern(n):
         this_row = tuple(islice(cycle(row_base), 1, 1+n))
         assert len(this_row) == n
         stack.append(this_row)
-    print('done pattern')
+    # print('done pattern')
     return np.vstack(stack)
+
+@lru_cache()
+def pattern2(n):
+    mat = scipy.sparse.dok_matrix((n, n))
+
+    base = [0, 1, 0, -1]
+    for row in range(n):
+        if row % 100 == 0: print(row)
+        this_base_len = (row+1) * len(base)
+        start = row
+        for col in range(start, n):
+            this_index = (col+1) % this_base_len // (row+1)
+            if base[this_index]: mat[row, col] = base[this_index]
+            # print((row, col), base[this_index], end=' ')
+            pass
+    print('done dok construction')
+    return scipy.sparse.csr_matrix(mat)
 
 def solve_1(data):
     print(data)
 
     data *= 10000
     vec = np.array(data)
-    print(pattern(len(data)))
+    print('done array()')
+    print(len(data))
+    print(pattern2(len(data)))
     x = vec
     input('wait ')
     for i in range(100):
