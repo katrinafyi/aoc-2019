@@ -28,6 +28,7 @@ def parse(lines: List[str]):
 
 @lru_cache()
 def pattern(n):
+    # I was trying to be clever. This cost me about 10 minutes.
     base = [0, 1, 0, -1]
     repeats = ceil(n / 4)
     stack = []
@@ -75,48 +76,50 @@ def apply_pattern(vec, n):
 
 def solve_1(data):
     print(data)
-    data *= 2
+    shift = int(''.join(map(str, data[:7])))
 
-    x = list(data)
+    data *= 10000
+    full_len = len(data)
+    data_dict = {}
+    for i, val in enumerate(data[shift:]):
+        data_dict[shift+i] = val
+
+    x = data_dict
     print(len(x))
-    y = [None] * len(x)
-    suffix = [0] * len(x)
-    seen = set()
-    for iteration in range(10000):
-        # print(i)
-        # print(x)
-        for i in range(len(x)-1, -1, -1):
-            if i + 1 < len(x):
+    y = {}
+
+    suffix = {}    
+    # IMPORTANT: y and x only store items AFTER shift.
+    for iteration in range(100):
+        print(iteration)
+        y = {}
+
+        for i in range(full_len-1, shift-1, -1):
+            if i + 1 < full_len:
                 suffix[i] = suffix[i+1] + x[i]
             else:
                 suffix[i] = x[i]
 
-        for i in range(len(x)-1, -1, -1):
+        for i in range(full_len-1, shift-1, -1):
             # print(i)
             # print(x)
             # print(y)
-            if i + 2*(i+1) >= len(x):
+            if i + 2*(i+1) >= full_len:
                 y[i] = suffix[i]
-                if i+i+1 < len(x): y[i] -= suffix[2*i+1]
+                if i+i+1 < full_len: 
+                    y[i] -= suffix[2*i+1]
             else:
-                # print(i, 'manual')
+                print(i, 'manual')
                 y[i] = apply_pattern(x, i)
         
-        # correct = ((np.mod(np.abs(pattern(len(x)) @ np.array(x)), 10)))
-
-        for i, val in enumerate(y):
+        for i, val in y.items():
             x[i] = abs(y[i]) % 10
-        print(i, x)
-        xtup = tuple(x[:8])
-        if xtup in seen: 
-            print(iteration, 'seen')
-            break
-        seen.add(xtup)
+        # print(i, x)
         # for i, val in enumerate(correct - x):
         #     if val:
         #         print(i, pattern(len(x))[i,:])
         # input()
-    print(x[:8])
+    print(list(x.values())[:8])
     # pattern = 
 
 
