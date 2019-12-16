@@ -12,6 +12,11 @@ from itertools import *
 # import math
 # from statistics import mean
 
+DEBUG = '-v' in sys.argv
+if DEBUG: sys.argv.remove('-v')
+def dprint(*args, **kwargs): 
+    if DEBUG: print(*args, **kwargs)
+
 INPUT = 'dayXX_input.txt' if len(sys.argv) == 1 else sys.argv[1]
 
 # import numpy as np 
