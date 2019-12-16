@@ -42,23 +42,26 @@ def pattern(n):
     return np.vstack(stack)
 
 @lru_cache()
-def pattern2(n):
-    mat_rows = []
-
+def pattern2(n, shift=0):
+    print('making transition (sub)matrix')
+    mat = scipy.sparse.dok_matrix((n-shift, n-shift))
     base = [0, 1, 0, -1]
-    for row in range(n):
-        if row % 100 == 0: print(row)
+    for row in range(shift, n):
+        if row % 100 == 0: print('row', row)
         this_base_len = (row+1) * len(base)
         start = row
-        mat_rows.append([base[(col+1) % this_base_len // (row+1)] for col in range(start, n)])
+        for col in range(start, n):
+            val = base[(col+1) % this_base_len // (row+1)]
+            if val:
+                mat[row-shift, col-shift] = val
         # for col in range(start, n):
         #     this_index = (col+1) % this_base_len // (row+1)
         #     if base[this_index]: mat[row, col] = base[this_index]
         #     # print((row, col), base[this_index], end=' ')
         #     pass
     # mat = scipy.sparse.lil_matrix((n, n))
-    print('done dok construction')
-    return scipy.sparse.csr_matrix(mat_rows)
+    # print('done dok construction')
+    return mat.tocsr()
 
 def apply_pattern_old(vec, n):
     out = 0
@@ -94,7 +97,7 @@ def apply_pattern(vec, full_len, shift=0):
                 y[i] -= suffix[2*i+1]
         else:
             assert shift == 0 # should not be hit in part 2.
-            print(i, 'manual') 
+            # print(i, 'manual') 
             y[i] = apply_pattern_old(vec, i)
     
     for i, val in y.items():
@@ -102,7 +105,30 @@ def apply_pattern(vec, full_len, shift=0):
     return y
 
 def solve_1(data):
-    print(data)
+    x = data
+    print('len', len(x))
+    for iteration in range(100):
+        # print(iteration)
+        # y = pattern(len(x)) @ x
+        # y = np.mod(np.abs(y), 10)
+        x = apply_pattern(x, len(data), 0)
+        # print(y)
+        # print(x)
+        # for i, row in enumerate(x - y):
+        #     if row:
+        #         print(i, row, )
+        #         # print(i, pattern(len(x))[i,:])
+        # x = np.array(x)
+        # print(x.values())
+        # input('pause at' + str(iteration))
+
+    # dictionary order is NOT guaranteed!
+    return [x[i] for i in range(8)]
+    # return tuple(x.values())[:8]
+
+def solve_2(data):
+    # print(data)
+
     shift = int(''.join(map(str, data[:7])))
 
     full_len = len(data) * 10000
@@ -110,18 +136,18 @@ def solve_1(data):
     for i in range(shift, full_len):
         data_dict[i] = data[i % len(data)]
 
+    # print(pattern2(full_len, shift))
     x = data_dict
     print('data len:', len(data), 'full_len:', full_len, 'after len:', len(x), 'fraction:', len(x) / full_len)
 
     for iteration in range(100):
-        print(iteration)
+        print(iteration, end=' ', flush=1)
         x = apply_pattern(x, full_len, shift)
-    print(tuple(x.values())[:8])
+        # print(x.values())
+        # input()
+    print()
+    return [x[i+shift] for i in range(8)]
     # pattern = 
-
-
-def solve_2(data):
-    pass 
 
 if __name__ == "__main__":
     with open(INPUT) as f:
