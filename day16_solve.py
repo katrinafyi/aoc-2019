@@ -60,7 +60,7 @@ def pattern2(n):
     print('done dok construction')
     return scipy.sparse.csr_matrix(mat_rows)
 
-def apply_pattern(vec, n):
+def apply_pattern_old(vec, n):
     out = 0
     start = n
     period = 4 * (n+1)
@@ -74,52 +74,49 @@ def apply_pattern(vec, n):
             out -= vec[i+j]
     return out
 
+def apply_pattern(vec, full_len, shift=0):
+    y = {}
+    suffix = {}
+
+    for i in range(full_len-1, shift-1, -1):
+        if i + 1 < full_len:
+            suffix[i] = suffix[i+1] + vec[i]
+        else:
+            suffix[i] = vec[i]
+
+    for i in range(full_len-1, shift-1, -1):
+        # print(i)
+        # print(x)
+        # print(y)
+        if i + 2*(i+1) >= full_len:
+            y[i] = suffix[i]
+            if i+i+1 < full_len: 
+                y[i] -= suffix[2*i+1]
+        else:
+            assert shift == 0 # should not be hit in part 2.
+            print(i, 'manual') 
+            y[i] = apply_pattern_old(vec, i)
+    
+    for i, val in y.items():
+        y[i] = abs(val) % 10
+    return y
+
 def solve_1(data):
     print(data)
     shift = int(''.join(map(str, data[:7])))
 
-    data *= 10000
-    full_len = len(data)
+    full_len = len(data) * 10000
     data_dict = {}
-    for i, val in enumerate(data[shift:]):
-        data_dict[shift+i] = val
+    for i in range(shift, full_len):
+        data_dict[i] = data[i % len(data)]
 
     x = data_dict
-    print(len(x))
-    y = {}
+    print('data len:', len(data), 'full_len:', full_len, 'after len:', len(x), 'fraction:', len(x) / full_len)
 
-    suffix = {}    
-    # IMPORTANT: y and x only store items AFTER shift.
     for iteration in range(100):
         print(iteration)
-        y = {}
-
-        for i in range(full_len-1, shift-1, -1):
-            if i + 1 < full_len:
-                suffix[i] = suffix[i+1] + x[i]
-            else:
-                suffix[i] = x[i]
-
-        for i in range(full_len-1, shift-1, -1):
-            # print(i)
-            # print(x)
-            # print(y)
-            if i + 2*(i+1) >= full_len:
-                y[i] = suffix[i]
-                if i+i+1 < full_len: 
-                    y[i] -= suffix[2*i+1]
-            else:
-                print(i, 'manual')
-                y[i] = apply_pattern(x, i)
-        
-        for i, val in y.items():
-            x[i] = abs(y[i]) % 10
-        # print(i, x)
-        # for i, val in enumerate(correct - x):
-        #     if val:
-        #         print(i, pattern(len(x))[i,:])
-        # input()
-    print(list(x.values())[:8])
+        x = apply_pattern(x, full_len, shift)
+    print(tuple(x.values())[:8])
     # pattern = 
 
 
