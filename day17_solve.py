@@ -94,9 +94,6 @@ def solve_1(data):
     print(sum(abs(x.imag) * abs(x.real) for x in isections))
 
     # part 2
-    data = list(data)
-    data[0] = 2
-    p = IntCode.from_list(data)
 
     pos = next(pos for pos in board if board[pos] == '^')
     hashes.add(pos)
@@ -104,7 +101,7 @@ def solve_1(data):
     vel = co.N
     while True:
         if pos+vel in hashes:
-            letter = 'F'
+            letter = ''
             pos += vel
         else:
             vel = co.turn_left(vel)
@@ -118,47 +115,85 @@ def solve_1(data):
                     letter = 'R'
                     pos += vel
                 else: break
-        path += letter
+        path += letter + 'F'
     opath = path
         # print(letter, end='')
         # if letter in 'LR': print()
 
-    from collections import Counter
-    A = B = C = 'fjev wiovj fweionvjio'
-    next_ord = ord('a') 
+    letters = 'CBA'
 
-    replacements = []
+    get_tail = lambda path: ''.join(takewhile(lambda c: c not in letters, dropwhile(lambda c: c in letters, path)))
 
-    while 1:
+    def compress_str(s):
+        f_len = 0
+        out = []
+        for c in s:
+            if c == 'F':
+                f_len += 1
+            else:
+                if f_len:
+                    out.append(str(f_len))
+                    f_len = 0
+                out.append(c)
+        if f_len:
+            out.append(str(f_len))
+            f_len = 0
+        return ','.join(out)
 
-        m = Maxer()
-        for i in range(len(path)-1):
-            m.update(path[i:i+2], path.count(path[i:i+2]))
-        pair, count = m.get_max()
-        if count == 1:
-            break
-        replacements.append((pair, chr(next_ord)))
-        path = path.replace(pair, chr(next_ord))
-        next_ord += 1
+    @lru_cache(maxsize=None)
+    def compress_segment(cpath, remaining):
+        if remaining == 0: 
+            return (not bool(cpath.strip(letters))) and len(compress_str(cpath)) <= 20, ()
+        # print('trying to compress', cpath)
+        for seg_len in range(1, len(cpath)):
+            seg = get_tail(cpath)[:seg_len]
+            path = cpath.replace(seg, letters[remaining-1])
 
-    print(replacements)
-    cur_str = ''
-    prev_letter = None
-    for pair, letter in replacements:
-        if prev_letter is None:
-            cur_str = pair 
-            prev_letter = letter 
-        elif prev_letter in pair:
-            cur_str = pair.replace(prev_letter, cur_str)
-            prev_letter = letter
-        else:
-            print(cur_str)
-            cur_str = ''
-            prev_letter = None
+            if len(compress_str(seg)) > 20: break
 
+            status, segments = compress_segment(path, remaining-1)
+            if status:
+                return True, (seg, ) + segments
+        return False, ()
 
+    result, segments = compress_segment(opath, 3)
+    print(result, segments)
+    # print(repr(opath))
+
+    print('#' * 20)
+    for seg in segments:
+        print(compress_str(seg))
+
+    data = list(data)
+    data[0] = 2
+    p = IntCode.from_list(data)
+
+    path = opath
+    for letter, seg in zip(letters[::-1], segments):
+        print(letter, seg)
+        path = path.replace(seg, letter)
+
+    print(opath)
     print(path)
 
+    to_ascii = lambda string: [ord(x) for x in string]
+
+    p.inputs.extend(to_ascii(compress_str(path) + '\n'))
+    for seg in segments:
+        print('inputtin', seg)
+        p.inputs.extend(to_ascii(compress_str(seg) + '\n'))
+    p.inputs.extend(to_ascii('n\n'))
+    print([chr(x) for x in p.inputs])
+    # print(list(board.keys())[-10:])
+    print('last output:', p.run_to_halt()[-1])
+    return
+
+    i = 0
+    while True:
+        if i % (29 * 45) == 0: input(0)
+        print(chr(p.run_to_output()), end='')
+        i += 1
+    return
 
 
     B = 'L'
