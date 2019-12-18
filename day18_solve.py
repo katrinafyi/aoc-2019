@@ -228,6 +228,9 @@ def solve_2(data):
     print('sol? ', sol)
     print('done in', time() - start_time, 'seconds')
 
+    print('recurse', recurse.cache_info())
+    print('bfs', bfs_min_path.cache_info())
+
     return sol
     
 

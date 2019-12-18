@@ -179,9 +179,11 @@ def solve_1(data):
     for letter, seg in zip(letters[::-1], segments):
         print(letter, seg)
         path = path.replace(seg, letter)
-
+    print(compress_str(path))
     print(opath)
     print(path)
+
+    # print(compress_segment.cache_info())
 
     to_ascii = lambda string: [ord(x) for x in string]
 
