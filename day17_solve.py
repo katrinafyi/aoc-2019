@@ -125,40 +125,39 @@ def solve_1(data):
 
     from collections import Counter
     A = B = C = 'fjev wiovj fweionvjio'
+    next_ord = ord('a') 
 
-    q = deque()
-    q.append({'A': 'L', 'B': 'R', 'C': 'F'})
-    while q:
-        strs = q.pop()
-        print(strs)
-        path = opath 
-        for letter, substr in strs.items():
-            path = path.replace(substr, letter)
-        if len(path) < 10:
-            print(path)
+    replacements = []
+
+    while 1:
+
+        m = Maxer()
+        for i in range(len(path)-1):
+            m.update(path[i:i+2], path.count(path[i:i+2]))
+        pair, count = m.get_max()
+        if count == 1:
             break
+        replacements.append((pair, chr(next_ord)))
+        path = path.replace(pair, chr(next_ord))
+        next_ord += 1
 
-        for letter, substr in strs.items():
-            test = lambda new: path.count(substr) == path.count(new)
-            index = path.index(letter)
-            new_A = None
-            if index > 0:
-                prefix = path[index-1]
-                new_A = prefix + substr
-                if test(new_A):
-                    new_letters = strs.copy()
-                    new_letters[letter] = new_A
-                    q.append(new_letters)
-            if index+1 < len(path):
-                suffix = path[index+1]
-                new_A = substr + suffix
-                if test(new_A):
-                    new_letters = strs.copy()
-                    new_letters[letter] = new_A
-                    q.append(new_letters)
-    print(strs)
+    print(replacements)
+    cur_str = ''
+    prev_letter = None
+    for pair, letter in replacements:
+        if prev_letter is None:
+            cur_str = pair 
+            prev_letter = letter 
+        elif prev_letter in pair:
+            cur_str = pair.replace(prev_letter, cur_str)
+            prev_letter = letter
+        else:
+            print(cur_str)
+            cur_str = ''
+            prev_letter = None
+
+
     print(path)
-    print('A expanded to', A)
 
 
 

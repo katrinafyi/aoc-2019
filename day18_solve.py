@@ -153,7 +153,7 @@ def solve_2(data):
     for adj in co.adjacents(at_symbol):
         board[adj] = '#'
 
-    quadr = lambda p: csign(p - at_symbol)
+    quadr = lru_cache(maxsize=None)(lambda p: csign(p - at_symbol))
 
     distances = dict()
     @lru_cache(maxsize=None)
