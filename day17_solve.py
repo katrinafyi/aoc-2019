@@ -126,40 +126,43 @@ def solve_1(data):
     from collections import Counter
     A = B = C = 'fjev wiovj fweionvjio'
 
+    q = deque()
+    q.append({'A': 'L', 'B': 'R', 'C': 'F'})
+    while q:
+        strs = q.pop()
+        print(strs)
+        path = opath 
+        for letter, substr in strs.items():
+            path = path.replace(substr, letter)
+        if len(path) < 10:
+            print(path)
+            break
+
+        for letter, substr in strs.items():
+            test = lambda new: path.count(substr) == path.count(new)
+            index = path.index(letter)
+            new_A = None
+            if index > 0:
+                prefix = path[index-1]
+                new_A = prefix + substr
+                if test(new_A):
+                    new_letters = strs.copy()
+                    new_letters[letter] = new_A
+                    q.append(new_letters)
+            if index+1 < len(path):
+                suffix = path[index+1]
+                new_A = substr + suffix
+                if test(new_A):
+                    new_letters = strs.copy()
+                    new_letters[letter] = new_A
+                    q.append(new_letters)
+    print(strs)
+    print(path)
+    print('A expanded to', A)
+
+
 
     B = 'L'
-    A = 'FFFLFFFFFFFFFFFRFF'
-    # C = 'F'
-    the_char = 'B'
-    A_prefix = 1
-    A_suffix = None
-    while A_suffix or A_prefix:
-        path = opath
-        # C = 'FFF'*3
-        path = path.replace(A, 'A')
-        path = path.replace(B, 'B')
-        # path = path.replace(C, 'C')
-        if 'B' not in path: break
-        A_prefix = None 
-        A_suffix = None
-        for i, c in enumerate(path):
-            if i+1 < len(path) and path[i+1] == the_char:
-                if A_prefix is None:
-                    A_prefix = c
-                elif A_prefix != c:
-                    A_prefix = False 
-            
-            if i > 0 and path[i-1] == the_char:
-                if A_suffix is None:
-                    A_suffix = c
-                elif A_suffix != c:
-                    A_suffix = False 
-        if A_prefix: 
-            B = A_prefix + B
-        if A_suffix: 
-            B = B + A_suffix
-        
-        print(the_char, 'is prefixed by', A_prefix, 'suffix', A_suffix)
     print(B)
     # print(path)
     # s = path
@@ -178,20 +181,6 @@ def solve_1(data):
     #         print(k, v, len(k) * v)
     # print(big_str)
     print(len(path))
-
-
-    s = path
-    f_start = None
-    print(s, 'L' in s, 'R' in s)
-    for i in range(len(s)):
-        if s[i] == "F":
-            if f_start is None:
-                f_start = i 
-        elif s[i] != 'F' and f_start is not None:
-            # print('F', i-f_start)
-            f_start = None
-    print('encoded len', len(s) * 2)
-    # print(opath)
 
             
         
