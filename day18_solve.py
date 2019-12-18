@@ -57,7 +57,7 @@ def solve_1(data):
         print()
 
     at_symbol = start
-    quadr = lambda p: csign(p - at_symbol)
+    quadr = lru_cache(maxsize=None)(lambda p: csign(p - at_symbol))
 
     sys.setrecursionlimit(50000)
 
@@ -91,8 +91,12 @@ def solve_1(data):
         print()
 
 
+    distances = dict()
     @lru_cache(maxsize=None)
     def bfs_min_path(start, end, keys):
+        s_key = frozenset((start, end))
+        if s_key in distances:
+            return distances[s_key]
         # if csign(start-at_symbol) == -csign(end-at_symbol):
         #     # print('opt')
         #     return key_dict[start][1] + key_dict[end][1]
@@ -114,6 +118,7 @@ def solve_1(data):
                 elif board[adj] in string.ascii_uppercase and board[adj] not in keys: 
                     continue
                 q.append((adj, l+1))
+        distances[s_key] = path_len
         return path_len
 
 
@@ -137,7 +142,7 @@ def solve_1(data):
         # print(open_goals)
         # return
         for next_goal in open_goals:
-            if len(keys) <= 4:
+            if len(keys) <= 6:
                 pass
                 print('next', len(keys), 'goal is', next_goal, 'of', len(open_goals))
             # print('trying to get to', next_goal, 'for', board[next_goal])
