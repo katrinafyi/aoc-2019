@@ -38,34 +38,12 @@ def parse(lines: List[str]):
 def csign(c):
     return complex(sign(c.real), sign(c.imag))
 
-def solve_1(data):
-    board = data
-
-    all_keys = set(v for k, v in board.items() if v in string.ascii_lowercase)
-    print(all_keys)
-
-    start = [k for k, v in board.items() if v == '@']
-    avg = sum(start) / len(start)
-    start = avg
-    board[avg] = '@'
-    for adj in co.adjacents_8(avg):
-        board[adj] = '.'
-
-    for y in range(7):
-        for x in range(10):
-            print(board[co.from_pos((x,y))], end='')
-        print()
-
-    at_symbol = start
-    quadr = lru_cache(maxsize=None)(lambda p: csign(p - at_symbol))
-
-    sys.setrecursionlimit(50000)
-
-    pos = at_symbol
+def compute_keys_dict(board, start):
+    board = board.copy()
     q = deque()
     aug_board = dict()
     # position, length, keys_needed
-    q.append((pos, 0, frozenset()))
+    q.append((start, 0, frozenset()))
     while q:
         pos, l, keys_needed = q.popleft()
         if pos in aug_board: continue 
@@ -78,18 +56,20 @@ def solve_1(data):
             elif board[adj] in string.ascii_uppercase:
                 this_key = keys_needed | {board[adj]}
             q.append((adj, l+1, this_key))
-    key_dict = {k:(board[k],)+ v for k, v in aug_board.items() if board[k] in string.ascii_lowercase}
-    print(aug_board)
-    print(key_dict)
-    # return
+    return {k:(board[k],)+ v for k, v in aug_board.items() if board[k] in string.ascii_lowercase}
 
-    for adj in co.adjacents(at_symbol):
-        board[adj] = '#'
-    for y in range(7):
-        for x in range(10):
-            print(board[co.from_pos((x,y))], end='')
-        print()
+def solve_1(data):
+    board = data
 
+    all_keys = set(v for k, v in board.items() if v in string.ascii_lowercase)
+    print(all_keys)
+    start = at_symbol = next(k for k, v in board.items() if v == '@')
+    keys_dict = compute_keys_dict(board, start)
+
+    quadr = lambda p: csign(p - at_symbol)
+
+    sys.setrecursionlimit(50000)
+    # print(keys_dict)
 
     distances = dict()
     @lru_cache(maxsize=None)
@@ -99,7 +79,7 @@ def solve_1(data):
             return distances[s_key]
         # if csign(start-at_symbol) == -csign(end-at_symbol):
         #     # print('opt')
-        #     return key_dict[start][1] + key_dict[end][1]
+        #     return keys_dict[start][1] + keys_dict[end][1]
 
         q = deque()
         seen = set()
@@ -123,6 +103,89 @@ def solve_1(data):
 
 
     @lru_cache(maxsize=None)
+    def recurse(pos, keys: frozenset):
+        if len(keys) == len(all_keys): return 0
+        # print('keys', keys)
+
+        min_path = float('inf')
+
+        open_goals = set(k for k, v in keys_dict.items() if len(v[2] - keys) == 0 and v[0].upper() not in keys)
+        same_quadr = set(x for x in open_goals if csign(x - at_symbol) == csign(pos - at_symbol))
+        if same_quadr:
+            open_goals = same_quadr
+        if not open_goals:
+            print('no available open goals D:')
+            return 0
+        # print(open_goals)
+        # return
+        for next_goal in open_goals:
+            if len(keys) <= 6:
+                pass
+                # print('next', len(keys), 'goal is', next_goal, 'of', len(open_goals))
+            # print('trying to get to', next_goal, 'for', board[next_goal])
+            
+            
+
+            path_len = bfs_min_path(pos, next_goal, keys)
+            assert path_len is not None
+            
+            # return path_len + recurse(next_goal, keys | {board[next_goal].upper()})
+            min_path = min(path_len + recurse(next_goal, keys | {board[next_goal].upper()}), min_path)
+        return min_path
+
+
+    # print(board)
+    return recurse(at_symbol, frozenset())
+
+def solve_2(data):
+    board = data
+    all_keys = set(v for k, v in board.items() if v in string.ascii_lowercase)
+    start = [k for k, v in board.items() if v == '@']
+    avg = sum(start) / len(start)
+    start = at_symbol = avg
+
+    board[avg] = '@'
+    for adj in co.adjacents_8(avg):
+        board[adj] = '.'
+    
+    keys_dict = compute_keys_dict(board, start)
+
+    for adj in co.adjacents(at_symbol):
+        board[adj] = '#'
+
+    quadr = lambda p: csign(p - at_symbol)
+
+    distances = dict()
+    @lru_cache(maxsize=None)
+    def bfs_min_path(start, end, keys):
+        s_key = frozenset((start, end))
+        if s_key in distances:
+            return distances[s_key]
+        # if csign(start-at_symbol) == -csign(end-at_symbol):
+        #     # print('opt')
+        #     return keys_dict[start][1] + keys_dict[end][1]
+
+        q = deque()
+        seen = set()
+        q.append((start, 0))
+        path_len = None
+        while q:
+            pos, l = q.popleft()
+            if pos == end: 
+                path_len = l
+                break
+            if pos in seen: continue 
+            seen.add(pos)
+            for adj in co.adjacents(pos):
+                if board[adj] == '#':
+                    continue 
+                elif board[adj] in string.ascii_uppercase and board[adj] not in keys: 
+                    continue
+                q.append((adj, l+1))
+        distances[s_key] = path_len
+        return path_len
+
+    @lru_cache(maxsize=None)
     def recurse(UNUSED, keys: frozenset, robots):
         if len(keys) == len(all_keys): return 0
         robots_by_quadr = {
@@ -132,7 +195,7 @@ def solve_1(data):
 
         min_path = float('inf')
 
-        open_goals = set(k for k, v in key_dict.items() if len(v[2] - keys) == 0 and v[0].upper() not in keys)
+        open_goals = set(k for k, v in keys_dict.items() if len(v[2] - keys) == 0 and v[0].upper() not in keys)
         # same_quadr = set(x for x in open_goals if csign(x - at_symbol) == csign(pos - at_symbol))
         # if same_quadr:
         #     open_goals = same_quadr
@@ -142,13 +205,11 @@ def solve_1(data):
         # print(open_goals)
         # return
         for next_goal in open_goals:
-            if len(keys) <= 6:
+            if len(keys) <= 2:
                 pass
                 print('next', len(keys), 'goal is', next_goal, 'of', len(open_goals))
             # print('trying to get to', next_goal, 'for', board[next_goal])
             
-            
-
             path_len = bfs_min_path(robots_by_quadr[quadr(next_goal)], next_goal, keys)
             assert path_len is not None
             
@@ -159,15 +220,16 @@ def solve_1(data):
             min_path = min(path_len + recurse(0, keys | {board[next_goal].upper()}, tuple(new_robots.values())), min_path)
         return min_path
 
-    print('xd')
-    print('sol?', recurse(start, frozenset(), (at_symbol + co.NE, at_symbol+co.SE, at_symbol+co.SW, at_symbol+co.NW)))
-    print('done')
+    from time import time
 
-    # print(board)
-    pass 
+    print('takes approx 30 seconds')
+    start_time = time()
+    sol = recurse(start, frozenset(), (at_symbol + co.NE, at_symbol+co.SE, at_symbol+co.SW, at_symbol+co.NW))
+    print('sol? ', sol)
+    print('done in', time() - start_time, 'seconds')
 
-def solve_2(data):
-    pass 
+    return sol
+    
 
 if __name__ == "__main__":
     with open(INPUT) as f:
