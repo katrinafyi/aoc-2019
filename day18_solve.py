@@ -41,7 +41,8 @@ def csign(c):
 def compute_keys_dict(board, start):
     board = board.copy()
     q = deque()
-    aug_board = dict()
+    aug_board = {}
+    parents = {start: None}
     # position, length, keys_needed
     q.append((start, 0, frozenset()))
     while q:
@@ -55,8 +56,10 @@ def compute_keys_dict(board, start):
                 continue 
             elif board[adj] in string.ascii_uppercase:
                 this_key = keys_needed | {board[adj]}
+            if adj not in parents:
+                parents[adj] = pos
             q.append((adj, l+1, this_key))
-    return {k:(board[k],)+ v for k, v in aug_board.items() if board[k] in string.ascii_lowercase}
+    return {k:(board[k],)+ v for k, v in aug_board.items() if board[k] in string.ascii_lowercase}, parents
 
 def solve_1(data):
     board = data
@@ -64,7 +67,7 @@ def solve_1(data):
     all_keys = set(v for k, v in board.items() if v in string.ascii_lowercase)
     print(all_keys)
     start = at_symbol = next(k for k, v in board.items() if v == '@')
-    keys_dict = compute_keys_dict(board, start)
+    keys_dict, parents = compute_keys_dict(board, start)
 
     quadr = lambda p: csign(p - at_symbol)
 
@@ -148,7 +151,17 @@ def solve_2(data):
     for adj in co.adjacents_8(avg):
         board[adj] = '.'
     
-    keys_dict = compute_keys_dict(board, start)
+    keys_dict, parents = compute_keys_dict(board, start)
+    # print(parents)
+
+    @lru_cache(maxsize=None)
+    def ancestors(pos):
+        out = set()
+        parent = parents[pos]
+        while parent:
+            out.add(parent)
+            parent = parents[parent]
+        return out
 
     for adj in co.adjacents(at_symbol):
         board[adj] = '#'
@@ -158,6 +171,10 @@ def solve_2(data):
     distances = dict()
     @lru_cache(maxsize=None)
     def bfs_min_path(start, end, keys):
+        a_start = ancestors(start)
+        a_end = ancestors(end)
+        return len(a_start) + len(a_end) - 2*len(a_start & a_end)
+
         s_key = frozenset((start, end))
         if s_key in distances:
             return distances[s_key]
@@ -205,7 +222,7 @@ def solve_2(data):
         # print(open_goals)
         # return
         for next_goal in open_goals:
-            if len(keys) <= 2:
+            if len(keys) <= 3:
                 pass
                 print('next', len(keys), 'goal is', next_goal, 'of', len(open_goals))
             # print('trying to get to', next_goal, 'for', board[next_goal])
