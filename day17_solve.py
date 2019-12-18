@@ -145,14 +145,21 @@ def solve_1(data):
         if remaining == 0: 
             return (not bool(cpath.strip(letters))) and len(compress_str(cpath)) <= 20, ()
         # print('trying to compress', cpath)
-        for seg_len in range(1, len(cpath)):
-            seg = get_tail(cpath)[:seg_len]
+        
+        # gets the part of cpath directly after any leading ABC's and ending before
+        # any other ABC's. this will form the basis of the next segment.
+        tail = get_tail(cpath)
+        # because the main function can only call ABC, at the end of each segment
+        # must be a new function. we just iterate over possible lengths of each function.
+        for seg_len in range(1, len(tail)+1):
+            seg = tail[:seg_len]
             path = cpath.replace(seg, letters[remaining-1])
 
             if len(compress_str(seg)) > 20: break
 
             status, segments = compress_segment(path, remaining-1)
             if status:
+                print(seg_len)
                 return True, (seg, ) + segments
         return False, ()
 
