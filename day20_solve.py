@@ -64,7 +64,7 @@ def parse(lines: List[str]):
     def find_pos_nearest_maze(pair):
         for p in pair:
             for a in co.adjacents(p):
-                if a in board:
+                if a in board and board[a] not in string.ascii_uppercase:
                     return a
         assert 0
 
@@ -85,7 +85,7 @@ def parse(lines: List[str]):
         portals[near_pos_out] = near_pos_in        
         
     # print(portals, AA, ZZ)
-
+    # print('a', lines[90][73])
     return board, portals, AA, ZZ
             
 
@@ -122,7 +122,7 @@ def solve_1(data):
         while q: 
             pos, l = q.popleft() 
             if pos in seen: continue 
-            if pos in portal_positions:
+            if pos in portal_positions or pos == ZZ:
                 reachable_portals[pos] = l
             seen.add(pos) 
             for adj in co.adjacents(pos):
@@ -133,38 +133,30 @@ def solve_1(data):
 
     print(compute_reachable_portals(AA))
 
-    distances = dict()
-    @lru_cache(maxsize=None)
-    def bfs_min_path(start, end, keys):
-        s_key = frozenset((start, end))
-        if s_key in distances:
-            return distances[s_key]
-        # if csign(start-at_symbol) == -csign(end-at_symbol):
-        #     # print('opt')
-        #     return keys_dict[start][1] + keys_dict[end][1]
+    edges = []
+    for p in tuple(portals.keys()) + (AA, ):
+        for other, l in compute_reachable_portals(p).items():
+            edges.append((p, other, {'weight':l}))
 
-        q = deque()
-        seen = set()
-        q.append((start, 0))
-        path_len = None
-        while q:
-            pos, l = q.popleft()
-            if pos == end: 
-                path_len = l
-                break
-            if pos in seen: continue 
-            seen.add(pos)
-            for adj in co.adjacents(pos):
-                if board[adj] == '#':
-                    continue 
-                q.append((adj, l+1))
-        distances[s_key] = path_len
-        return path_len
+    for p_in, p_out in portals.items():
+        edges.append((p_in, p_out, {'weight':1}))
 
     import networkx as nx 
 
     g = nx.Graph()
     
+    g.add_edges_from(edges)
+    # print('nodes', g.nodes)
+    # print(g.edges)
+    print('start is', AA)
+    print(AA in g.nodes, ZZ in g.nodes)
+
+    # print(list(g.neighbors(AA)))
+    # print(list(g.neighbors(ZZ)))
+    # print(list(g.neighbors((73-90j))))
+
+    print(nx.algorithms.shortest_path_length(g, AA, ZZ, weight='weight'))
+    return
     
 
     sys.setrecursionlimit(3000)
