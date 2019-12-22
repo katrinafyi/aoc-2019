@@ -46,8 +46,13 @@ def from_angle_imprecise(d):
 
 def to_pos(c):
     return (c.real, -c.imag)
-def from_pos(pos):
-    return complex(pos[0], -pos[1])
+def from_pos(pos, snd=None):
+    if snd is None:
+        x, y = pos 
+    else: 
+        x, y = pos, snd
+
+    return complex(x, -y)
 
 def cityblock_distance(c): 
     return abs(c.real) + abs(c.imag)

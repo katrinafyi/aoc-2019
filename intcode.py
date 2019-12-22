@@ -117,3 +117,15 @@ class IntCode:
                 break 
             out.append(x)
         return out
+
+    def run_to_input(self):
+        out = []
+        while True: 
+            try:
+                x = self.run_to_output()
+            except IndexError:
+                break
+            if x is None:
+                break 
+            out.append(x)
+        return out

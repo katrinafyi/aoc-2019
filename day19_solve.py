@@ -82,6 +82,34 @@ def solve_1(data):
     y_shift = 3999
     size = 100
 
+    import coords as co
+
+    test_pos_co = lambda c: test_pos(clean_p, *co.to_pos(c))
+
+    size = 100 
+    def test_square(top_left):
+        for shifts in ((size-1, -size-1), ):
+            if not test_pos_co(top_left + co.from_pos(shifts)):
+                return False
+        return True
+
+    pos = co.from_pos(3, 4)
+    while True:
+        print(pos)
+        if test_pos_co(pos + co.S):
+            pos += co.S 
+        elif test_pos_co(pos + co.E):
+            pos += co.E 
+        else:
+            pos += co.SE
+        if test_square(pos):
+            print(pos)
+            break
+    
+    return
+
+
+
     # y_shift = len(test)-1
     # size = 10
 
