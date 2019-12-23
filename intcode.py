@@ -118,7 +118,7 @@ class IntCode:
             out.append(x)
         return out
 
-    def run_to_input(self):
+    def run_to_input(self, as_str=False):
         out = []
         while True: 
             try:
@@ -128,4 +128,6 @@ class IntCode:
             if x is None:
                 break 
             out.append(x)
+        if as_str:
+            return ''.join(map(chr, out))
         return out
