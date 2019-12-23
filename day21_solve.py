@@ -33,37 +33,16 @@ def solve_1(data):
     # print(data)
     p = IntCode.from_list(data)
     # print(a_to_s(p.run_to_input()))
-    springcode = '''OR A T
-AND D T
-NOT T T
-AND A T
-OR C T
-OR B T
-AND A T
-NOT T J
-AND J T
-OR D T
-AND E T
-OR T J
-RUN
-'''
-    springcode = '''NOT A J
-OR B T
-OR E T
-NOT T T
-OR T J
 
-AND D J
-RUN
-'''
-    springcode = '''OR B J
-OR E J
-OR C T
-OR E T
-OR F T
-AND J T
-AND A T
+    # jump if A or B or C is a hole
+    # AND D is ground AND (E OR H is ground)
+    springcode = '''OR A T
+AND B T
+AND C T
 NOT T J
+OR E T
+OR H T
+AND T J
 AND D J
 RUN
 '''
@@ -73,8 +52,6 @@ RUN
     o = p.run_to_halt()
     print(a_to_s(o[:-1]))
     print(o[-1])
-
-
 
 def solve_2(data):
     pass 
