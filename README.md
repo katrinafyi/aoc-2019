@@ -1,6 +1,15 @@
 # Advent of Code 2019
 My competitive advent of Code 2019 solutions, written in Python.
 
+## Support Libraries
+
+Some components were used in several different days, so I refactored them into standalone libraries. 
+
+- [**coords.py**](https://github.com/kentonlam/aoc-2019/blob/master/coords.py): 2D coordinate system based on Python's complex numbers. Originall by [mb](http://github.com/MaxwellBo).
+- [**intcode.py**](https://github.com/kentonlam/aoc-2019/blob/master/intcode.py): Virtual machine for the [Intcode](https://esolangs.org/wiki/Intcode) language. Supports input/output, various parameter modes and various calculation/comparison operations.
+- [**san.py**](https://github.com/kentonlam/aoc-2019/blob/master/san.py): Chainable Python iterator functions like `.map(...).filter(...).collect()`.
+
+
 ## Personal Stats
 
 I finished [85th worldwide](https://adventofcode.com/2019/leaderboard), with only 3 challenges uncompleted. 
