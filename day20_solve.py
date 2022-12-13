@@ -7,6 +7,8 @@ from math import *
 from typing import *
 from itertools import *
 
+from pprint import pprint
+
 # from intcode import *
 
 import string
@@ -114,7 +116,7 @@ def solve_1(data):
     portal_positions = set(portals)
     
     @lru_cache(maxsize=None)
-    def compute_reachable_portals(start):
+    def compute_reachable_portals(start, zz=True):
         q = deque() 
         seen = set() 
         q.append((start, 0))
@@ -122,7 +124,7 @@ def solve_1(data):
         while q: 
             pos, l = q.popleft() 
             if pos in seen: continue 
-            if pos in portal_positions or pos == ZZ:
+            if pos in portal_positions or (zz and pos == ZZ):
                 reachable_portals[pos] = l
             seen.add(pos) 
             for adj in co.adjacents(pos):
@@ -133,13 +135,26 @@ def solve_1(data):
 
     print(compute_reachable_portals(AA))
 
-    edges = []
+    print(portals)
+
+    re = lambda x: x.real 
+    im = lambda x: x.imag
+    min_re,max_re = min(map(re, portals)), max(map(re,portals))
+    min_im,max_im = min(map(im, portals)), max(map(im,portals))
+
+    def outer(x):
+        return x.real in (min_re,max_re) or x.imag in (min_im,max_im)
+
+    inner_edges = []
     for p in tuple(portals.keys()) + (AA, ):
         for other, l in compute_reachable_portals(p).items():
-            edges.append((p, other, {'weight':l}))
+            inner_edges.append((p, other, {'weight':l}))
 
+    portal_edges = []
     for p_in, p_out in portals.items():
-        edges.append((p_in, p_out, {'weight':1}))
+        portal_edges.append((p_in, p_out, {'weight':1}))
+
+    edges = inner_edges + portal_edges
 
     import networkx as nx 
 
@@ -156,6 +171,33 @@ def solve_1(data):
     # print(list(g.neighbors((73-90j))))
 
     print(nx.algorithms.shortest_path_length(g, AA, ZZ, weight='weight'))
+
+    def rec_graph(n):
+        g = nx.Graph()
+        e = []
+        for depth in range(n):
+            for p in tuple(portals) + (AA,):
+                zz = depth == 0
+                for other, l in compute_reachable_portals(p, zz).items():
+                    if p == other: continue
+                    p2 = (p,depth)
+                    other = (other,depth)
+                    e.append((p2, other, {'weight':l}))
+
+            for p_in, p_out in portals.items():
+                if outer(p_in):
+                    d2 = depth-1
+                else:
+                    d2 = depth+1
+                e.append(((p_in,depth), (p_out,d2), {'weight':1}))
+
+        g.add_edges_from(e)
+        print('aa', AA, 'zz', ZZ)
+        # pprint(e)        
+        print(g)
+        print(nx.algorithms.shortest_path_length(g, (AA,0), (ZZ,0), weight='weight'))
+    rec_graph(100)
+
     return
     
 
